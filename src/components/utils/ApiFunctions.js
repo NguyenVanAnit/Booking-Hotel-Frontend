@@ -28,7 +28,7 @@ export const getRoomTypes = async () => {
     console.log("room types", response);
     return response.data;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     throw new Error("Error fetching room types");
   }
 };
@@ -36,10 +36,10 @@ export const getRoomTypes = async () => {
 export const getAllRooms = async () => {
   try {
     const response = await api.get("/rooms/all-rooms");
-    console.log("all rooms", response);
+    // console.log("all rooms", response);
     return response.data;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     throw new Error("Error fetching all rooms");
   }
 };
@@ -50,7 +50,7 @@ export const deleteRoom = async (roomId) => {
     console.log("delete room", response);
     return response;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     throw new Error("Error deleting room");
   }
 };
@@ -66,7 +66,7 @@ export const updateRoom = async (roomId, roomData) => {
     console.log("update room", response);
     return response;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     throw new Error("Error updating room");
   }
 };
@@ -77,7 +77,68 @@ export const getRoomById = async (roomId) => {
     console.log("room by id", response);
     return response.data;
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     throw new Error("Error fetching room by id");
+  }
+};
+
+export const bookRoom = async (roomId, booking) => {
+  try {
+    const response = await api.post(
+      `/bookings/room/${roomId}/booking`,
+      booking
+    );
+    console.log("booked room", response);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data);
+    } else {
+      throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
+    }
+  }
+};
+
+export const getAllBookings = async () => {
+  try {
+    const response = await api.get("/bookings/all-bookings");
+    console.log("all bookings", response);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data);
+    } else {
+      throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
+    }
+  }
+};
+
+export const getBookingByConfirmationCode = async (confirmationCode) => {
+  try {
+    const response = await api.get(
+      `/bookings/confirmation/${confirmationCode}`
+    );
+    console.log("confirmationcode", response);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data);
+    } else {
+      throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
+    }
+  }
+};
+
+export const cancelBooking = async (bookingId) => {
+  try {
+    const response = await api.delete(`/bookings/booking/${bookingId}/delete`);
+    console.log("cancel booking", response);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data);
+    } else {
+      throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
+    }
   }
 };

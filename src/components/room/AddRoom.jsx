@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { addRoom } from "../utils/ApiFunctions";
-import RoomTypeSelector from "../common/RoomTypeSelector";
+// import RoomTypeSelector from "../common/RoomTypeSelector";
 import { Input, Form, Button, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
@@ -37,10 +37,10 @@ const AddRoom = () => {
   return (
     <>
       <section>
-        <div>
-          <h2>Add Room</h2>
+        <div style={{ width: "20%", margin: "auto", boxShadow: "0 0 10px 0 #ccc", padding: "20px", borderRadius: "10px" }}>
+          <h2 style={{ marginBottom: "30px" }}>Thêm phòng mới</h2>
 
-          <Form onFinish={handleSubmit} layout="vertical">
+          <Form onFinish={handleSubmit} layout="vertical" >
             <Form.Item
               label="Loại phòng"
               name="roomType"
@@ -102,11 +102,10 @@ const AddRoom = () => {
                 style={{ width: "100%", height: "100%" }}
                 accept="image/png, image/jpeg, image/jpg"
               >
-                <UploadOutlined />
-                <Button>Chọn ảnh</Button>
+                <Button><UploadOutlined />Chọn ảnh</Button>
               </Upload>
             </Form.Item>
-            <Form.Item>
+            <Form.Item style={{ marginTop: "50px" }}>
               <Button type="primary" htmlType="submit">
                 Thêm phòng
               </Button>

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { getAllRooms, deleteRoom } from "../utils/ApiFunctions";
-import { Button, Table, Popconfirm } from "antd";
+import { useEffect, useState } from "react";
+import { getAllRooms, deleteRoom, getRoomTypes } from "../utils/ApiFunctions";
+import { Button, Table, Popconfirm, Select } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const ExistingRooms = () => {
   const [rooms, setRooms] = useState([]);
+  const [listRoomTypes, setListRoomTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [roomsPerPage, setRoomsPerPage] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [selecterdRoomType, setSelecterdRoomType] = useState("");
@@ -25,17 +25,24 @@ const ExistingRooms = () => {
     }
   };
 
+  const fetchRoomTypes = async () => {
+    const response = await getRoomTypes();
+    setListRoomTypes(response);
+  }
+
   useEffect(() => {
     fetchData();
+    fetchRoomTypes();
   }, []);
 
   useEffect(() => {
-    if (selecterdRoomType === "") {
+    if (selecterdRoomType == undefined) {
       setFilteredRooms(rooms);
     } else {
-      const filteredRooms = rooms.filter((room) => {
-        room.roomType.toLowerCase().includes(selecterdRoomType.toLowerCase());
-      });
+      const filteredRooms = rooms.filter((room) =>
+        room.roomType.includes(selecterdRoomType)
+      );
+      console.log(filteredRooms)
       setFilteredRooms(filteredRooms);
     }
     setCurrentPage(1);
@@ -80,9 +87,10 @@ const ExistingRooms = () => {
       key: "roomPrice",
       width: 200,
       align: "center",
+      render: (text) => <span>{text} VNĐ</span>,
     },
     {
-      title: "Action",
+      title: "Chức năng",
       dataIndex: "action",
       key: "action",
       width: 200,
@@ -113,8 +121,29 @@ const ExistingRooms = () => {
   ];
 
   return (
-    <div>
-      <h2>Danh sách phòng đang được thuê</h2>
+    <div style={{ padding: "40px" }}>
+      <h2 style={{ marginBottom: '30px' }}>Danh sách phòng đang được thuê</h2>
+
+      <div style={{ paddingBottom: '20px' }}    >
+
+        <Select
+          // defaultValue="lucy"
+          style={{
+            width: "20%",
+          }}
+          allowClear
+          options={listRoomTypes.map((roomType) => ({
+            label: roomType,
+            value: roomType,
+          }))}
+          placeholder="Tìm kiếm loại phòng"
+          onChange={(value) => {
+            console.log(value);
+            setSelecterdRoomType(value)
+          }}
+        />
+      </div>
+
       <Table
         columns={columns}
         dataSource={filteredRooms}
@@ -122,16 +151,16 @@ const ExistingRooms = () => {
         bordered
         size="small"
         rowKey={(record) => record.id}
-        // pagination={{
-        //   current: currentPage,
-        //   pageSize: roomsPerPage,
-        //   total: filteredRooms.length,
-        //   showTotal: (total) => `Total ${total} rooms`,
-        //   onChange: (page, pageSize) => {
-        //     setCurrentPage(page);
-        //     setRoomsPerPage(pageSize);
-        //   },
-        // }}
+      // pagination={{
+      //   current: currentPage,
+      //   pageSize: roomsPerPage,
+      //   total: filteredRooms.length,
+      //   showTotal: (total) => `Total ${total} rooms`,
+      //   onChange: (page, pageSize) => {
+      //     setCurrentPage(page);
+      //     setRoomsPerPage(pageSize);
+      //   },
+      // }}
       />
     </div>
   );

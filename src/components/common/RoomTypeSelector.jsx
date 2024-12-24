@@ -1,54 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { getRoomTypes } from '../utils/ApiFunctions';
+import React, { useState, useEffect } from "react"
+import { getRoomTypes } from "../utils/ApiFunctions"
 
-const RoomTypeSelector = (handleRoomInputChange, newRoom) => {
-    const [roomTypes, setRoomTypes] = useState([""]);
-    const [showNewRoomType, setShowNewRoomType] = useState(false);
-    const [newRoomType, setNewRoomType] = useState("");
+const RoomTypeSelector = ({ handleRoomInputChange, newRoom }) => {
+    const [roomTypes, setRoomTypes] = useState([""])
+    const [showNewRoomTypeInput, setShowNewRoomTypeInput] = useState(false)
+    const [newRoomType, setNewRoomType] = useState("")
 
     useEffect(() => {
-        getRoomTypes().then((roomTypes) => {
-            setRoomTypes(roomTypes);
-        });
-    }, []);
+        getRoomTypes().then((data) => {
+            setRoomTypes(data)
+        })
+    }, [])
 
-    const handleNewRoomTypeChange = (e) => {
-        setNewRoomType(e.target.value);
-    };
+    const handleNewRoomTypeInputChange = (e) => {
+        setNewRoomType(e.target.value)
+    }
 
     const handleAddNewRoomType = () => {
-        if (newRoomType != "") {
-            setRoomTypes([...roomTypes, newRoomType]);
-            setNewRoomType("");
-            setShowNewRoomType(false);
+        if (newRoomType !== "") {
+            setRoomTypes([...roomTypes, newRoomType])
+            setNewRoomType("")
+            setShowNewRoomTypeInput(false)
         }
-    };
-
+    }
 
     return (
         <>
             {roomTypes.length > 0 && (
                 <div>
-                    <select name="roomType" id="roomType" onChange={(e) => {
-                        if (e.target.value == "Add new type") setShowNewRoomType(true)
-                        else handleRoomInputChange(e)
-                    }} value={newRoom.roomType}>
-                        <option value="">Select Room Type</option>
-                        <option value="Add new type">Add new type</option>
-                        {roomTypes.map((roomType, index) => (
-                            <option key={index} value={roomType}>{roomType}</option>
+                    <select
+                        required
+                        className="form-select"
+                        name="roomType"
+                        onChange={(e) => {
+                            if (e.target.value === "Add New") {
+                                setShowNewRoomTypeInput(true)
+                            } else {
+                                handleRoomInputChange(e)
+                            }
+                        }}
+                        value={newRoom.roomType}>
+                        <option value="">Select a room type</option>
+                        <option value={"Add New"}>Add New</option>
+                        {roomTypes.map((type, index) => (
+                            <option key={index} value={type}>
+                                {type}
+                            </option>
                         ))}
                     </select>
-                    {showNewRoomType && (
-                        <div>
-                            <input type="text" value={newRoomType} onChange={handleNewRoomTypeChange} placeholder='Enter new room type' />
-                            <button onClick={handleAddNewRoomType}>Add</button>
+                    {showNewRoomTypeInput && (
+                        <div className="mt-2">
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Enter New Room Type"
+                                    value={newRoomType}
+                                    onChange={handleNewRoomTypeInputChange}
+                                />
+                                <button className="btn btn-hotel" type="button" onClick={handleAddNewRoomType}>
+                                    Add
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
             )}
         </>
-    );
-};
+    )
+}
 
-export default RoomTypeSelector;
+export default RoomTypeSelector
