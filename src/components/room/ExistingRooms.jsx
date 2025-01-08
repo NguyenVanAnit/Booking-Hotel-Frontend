@@ -3,6 +3,7 @@ import { getAllRooms, deleteRoom, getRoomTypes } from "../utils/ApiFunctions";
 import { Button, Table, Popconfirm, Select } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { formatVND } from "../helpers/helpers";
 
 const ExistingRooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -87,7 +88,7 @@ const ExistingRooms = () => {
       key: "roomPrice",
       width: 200,
       align: "center",
-      render: (text) => <span>{text} VNĐ</span>,
+      render: (text) => <span>{formatVND(text)} VNĐ</span>,
     },
     {
       title: "Chức năng",
@@ -122,7 +123,7 @@ const ExistingRooms = () => {
 
   return (
     <div style={{ padding: "40px" }}>
-      <h2 style={{ marginBottom: '30px' }}>Danh sách phòng đang được thuê</h2>
+      <h2 style={{ marginBottom: '30px' }}>Danh sách phòng </h2>
 
       <div style={{ paddingBottom: '20px' }}    >
 

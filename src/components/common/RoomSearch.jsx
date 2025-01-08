@@ -1,9 +1,12 @@
-import React, { useState } from "react"
-import { Form, Button, Row, Col, Container } from "react-bootstrap"
+import { useEffect, useState } from "react"
+import { Row, Col, Container } from "react-bootstrap"
 import moment from "moment"
-// import { getAvailableRooms } from "../utils/ApiFunctions"
 import RoomSearchResults from "./RoomSearchResult"
-import RoomTypeSelector from "./RoomTypeSelector"
+// import RoomTypeSelector from "./RoomTypeSelector"
+import { Form, Button, DatePicker, Select } from "antd"
+const { RangePicker } = DatePicker
+import { getRoomTypes, getAvailableRooms } from "../utils/ApiFunctions"
+import { SearchOutlined } from "@ant-design/icons";
 
 const RoomSearch = () => {
 	const [searchQuery, setSearchQuery] = useState({
@@ -11,46 +14,41 @@ const RoomSearch = () => {
 		checkOutDate: "",
 		roomType: ""
 	})
+	const [listRoomTypes, setListRoomTypes] = useState([])
+
+	const fetchRoomTypes = async () => {
+		const response = await getRoomTypes()
+		setListRoomTypes(response)
+	}
+
+	useEffect(() => {
+		fetchRoomTypes();
+	}, [])
 
 	const [errorMessage, setErrorMessage] = useState("")
 	const [availableRooms, setAvailableRooms] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 
-	const handleSearch = (e) => {
-		e.preventDefault()
-		const checkInMoment = moment(searchQuery.checkInDate)
-		const checkOutMoment = moment(searchQuery.checkOutDate)
-		if (!checkInMoment.isValid() || !checkOutMoment.isValid()) {
-			setErrorMessage("Please enter valid dates")
-			return
-		}
-		if (!checkOutMoment.isSameOrAfter(checkInMoment)) {
-			setErrorMessage("Check-out date must be after check-in date")
-			return
-		}
+	const handleSearch = (values) => {
 		setIsLoading(true)
-		// getAvailableRooms(searchQuery.checkInDate, searchQuery.checkOutDate, searchQuery.roomType)
-		// 	.then((response) => {
-		// 		setAvailableRooms(response.data)
-		// 		setTimeout(() => setIsLoading(false), 2000)
-		// 	})
-		// 	.catch((error) => {
-		// 		console.log(error)
-		// 	})
-		// 	.finally(() => {
-		// 		setIsLoading(false)
-		// 	})
+
+		const checkInDate = moment(values.datestr[0]).format("YYYY-MM-DD")
+		const checkOutDate = moment(values.datestr[1]).format("YYYY-MM-DD")
+		const roomType = values.roomType
+
+		getAvailableRooms(checkInDate, checkOutDate, roomType)
+			.then((response) => {
+				setAvailableRooms(response.data)
+				setTimeout(() => setIsLoading(false), 2000)
+			})
+			.catch((error) => {
+				console.log(error)
+			})
+			.finally(() => {
+				setIsLoading(false)
+			})
 	}
 
-	const handleInputChange = (e) => {
-		const { name, value } = e.target
-		setSearchQuery({ ...searchQuery, [name]: value })
-		const checkInDate = moment(searchQuery.checkInDate)
-		const checkOutDate = moment(searchQuery.checkOutDate)
-		if (checkInDate.isValid() && checkOutDate.isValid()) {
-			setErrorMessage("")
-		}
-	}
 	const handleClearSearch = () => {
 		setSearchQuery({
 			checkInDate: "",
@@ -60,58 +58,75 @@ const RoomSearch = () => {
 		setAvailableRooms([])
 	}
 
+	const disabledDate = (current) => {
+		// Không cho chọn ngày trong quá khứ
+		return current && current < moment().endOf('day');
+	};
+
 	return (
 		<>
-			<Container className="shadow mt-n5 mb-5 py-5">
-				<Form onSubmit={handleSearch}>
+			<Container className="shadow mt-5 mb-5 py-5">
+				<h2 className="mb-3">Tìm phòng nhanh chóng</h2>
+				<Form
+					layout="vertical"
+					onFinish={handleSearch}
+				>
 					<Row className="justify-content-center">
 						<Col xs={12} md={3}>
-							<Form.Group controlId="checkInDate">
-								<Form.Label>Check-in Date</Form.Label>
-								<Form.Control
-									type="date"
-									name="checkInDate"
-									value={searchQuery.checkInDate}
-									onChange={handleInputChange}
-									min={moment().format("YYYY-MM-DD")}
-								/>
-							</Form.Group>
+							<Form.Item
+								name="datestr"
+								label="Ngày nhận phòng - Ngày trả phòng"
+								rules={[
+									{
+										required: true,
+										message: "Ngày nhận phòng và trả phòng không được để trống",
+									},
+								]}
+
+							>
+								<RangePicker format="YYYY-MM-DD" disabledDate={disabledDate} />
+							</Form.Item>
 						</Col>
 						<Col xs={12} md={3}>
-							<Form.Group controlId="checkOutDate">
-								<Form.Label>Check-out Date</Form.Label>
-								<Form.Control
-									type="date"
-									name="checkOutDate"
-									value={searchQuery.checkOutDate}
-									onChange={handleInputChange}
-									min={moment().format("YYYY-MM-DD")}
+							<Form.Item
+								name="roomType"
+								label="Loại phòng"
+								rules={[
+									{
+										required: true,
+										message: "Loại phòng không được để trống",
+									},
+								]}
+							>
+								<Select
+									style={{
+										width: "100%",
+									}}
+									allowClear
+									options={listRoomTypes.map((roomType) => ({
+										label: roomType,
+										value: roomType,
+									}))}
+									placeholder="Tìm kiếm loại phòng"
 								/>
-							</Form.Group>
+							</Form.Item>
 						</Col>
 						<Col xs={12} md={3}>
-							<Form.Group controlId="roomType">
-								<Form.Label>Room Type</Form.Label>
-								<div className="d-flex">
-									<RoomTypeSelector
-										handleRoomInputChange={handleInputChange}
-										newRoom={searchQuery}
-									/>
-									<Button variant="secondary" type="submit" className="ml-2">
-										Search
-									</Button>
-								</div>
-							</Form.Group>
+							<Form.Item>
+								<Button type="primary" htmlType="submit" style={{ marginTop: "30px" }}>
+									Tìm phòng <SearchOutlined />
+								</Button>
+							</Form.Item>
 						</Col>
 					</Row>
 				</Form>
 
 				{isLoading ? (
-					<p className="mt-4">Finding availble rooms....</p>
+					<p className="mt-4 text-primary">Đang tìm kiếm phòng....</p>
 				) : availableRooms ? (
 					<RoomSearchResults results={availableRooms} onClearSearch={handleClearSearch} />
 				) : (
-					<p className="mt-4">No rooms available for the selected dates and room type.</p>
+					<p className="mt-4">Không tìm thấy phòng phù hợp</p>
 				)}
 				{errorMessage && <p className="text-danger">{errorMessage}</p>}
 			</Container>

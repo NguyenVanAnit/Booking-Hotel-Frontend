@@ -7,14 +7,14 @@ const HotelService = () => {
     return (
         <>
             <div className="mb-2">
-                <Header title={"Our Services"} />
+                <Header title={"Các dịch vụ hàng đầu"} />
 
                 <Row className="mt-4">
                     <h4 className="text-center">
-                        Services at <span className="hotel-color"> lakeSide - </span>Hotel
+                        Dịch vụ nổi tiếng ở Khách sạn <span className="hotel-color"> Bách Khoa </span>
                         <span className="gap-2">
                             {/* <FaClock className="ml-5" />  */}
-                            24-Hour Front Desk
+                            phục vụ bạn 24/7
                         </span>
                     </h4>
                 </Row>
@@ -27,7 +27,7 @@ const HotelService = () => {
                                 <Card.Title className="hotel-color">
                                     <WifiOutlined /> Wifi
                                 </Card.Title>
-                                <Card.Text>Stay connected with high-speed internet access.</Card.Text>
+                                <Card.Text>Tốc độ truy cập nhanh chóng.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -37,7 +37,7 @@ const HotelService = () => {
                                 <Card.Title className="hotel-color">
                                     <CoffeeOutlined /> Ăn uống
                                 </Card.Title>
-                                <Card.Text>Start your day with a delicious breakfast buffet.</Card.Text>
+                                <Card.Text>Các đầu bếp 5 sao hàng đầu.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -47,7 +47,7 @@ const HotelService = () => {
                                 <Card.Title className="hotel-color">
                                     <SkinOutlined /> Giặt là
                                 </Card.Title>
-                                <Card.Text>Keep your clothes clean and fresh with our laundry service.</Card.Text>
+                                <Card.Text>Sự sạch sẽ của bạn luôn được ưu tiên.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -57,7 +57,7 @@ const HotelService = () => {
                                 <Card.Title className="hotel-color">
                                     <PlaySquareOutlined /> Netfilx Premium
                                 </Card.Title>
-                                <Card.Text>Enjoy a refreshing drink or snack from our in-room mini-bar.</Card.Text>
+                                <Card.Text>Cung cấp dịch vụ miễn phí.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -67,7 +67,7 @@ const HotelService = () => {
                                 <Card.Title className="hotel-color">
                                     <TruckOutlined /> Bãi đỗ xe
                                 </Card.Title>
-                                <Card.Text>Park your car conveniently in our on-site parking lot.</Card.Text>
+                                <Card.Text>Bãi đỗ xe rộng rãi không bao giờ thiếu.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -75,9 +75,9 @@ const HotelService = () => {
                         <Card>
                             <Card.Body>
                                 <Card.Title className="hotel-color">
-                                    <CarOutlined /> Dịch vụ chăm sóc xe
+                                    <CarOutlined /> Dịch vụ vận chuyển
                                 </Card.Title>
-                                <Card.Text>Stay cool and comfortable with our air conditioning system.</Card.Text>
+                                <Card.Text>Cung cấp dịch vụ vận chuyển miễn phí.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>

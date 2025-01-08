@@ -13,4 +13,5 @@ const formatVND = (number) => {
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
+
 export { formatDate, formatTime, formatVND };

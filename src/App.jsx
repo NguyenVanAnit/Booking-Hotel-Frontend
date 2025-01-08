@@ -13,10 +13,16 @@ import Admin from "./components/admin/Admin";
 import Checkout from "./components/booking/Checkout";
 import BookingSuccess from "./components/booking/BookingSuccess";
 import Bookings from "./components/booking/Booking";
+import Login from "./components/auth/Login"
+import Registration from "./components/auth/Registration"
+import Profile from "./components/auth/Profile"
+import { AuthProvider } from "./components/auth/AuthProvider"
+import RequireAuth from "./components/auth/RequireAuth"
+
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <main>
         <Router>
           <NavBar />
@@ -27,14 +33,22 @@ function App() {
             <Route path="/existing-rooms" element={<ExistingRooms />} />
             <Route path="/browse-all-rooms" element={<RoomListing />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="book-room" element={<Checkout />} />
+            <Route path="book-room" element={
+              <RequireAuth>
+                <Checkout />
+              </RequireAuth>
+            } />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/existing-bookings" element={<Bookings />} />
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Registration />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
           <Footer />
         </Router>
       </main>
-    </>
+    </AuthProvider>
   );
 }
 

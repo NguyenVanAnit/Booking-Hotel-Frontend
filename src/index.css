@@ -71,8 +71,8 @@ body {
   }
   .room-price{
     color:darkgoldenrod;
-    font-family: 'Courier New', Courier, monospace;
-    font-size:medium;
+    font-size: small;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   }
   .vertical-rule{
     border-left: '0.5px solid black';

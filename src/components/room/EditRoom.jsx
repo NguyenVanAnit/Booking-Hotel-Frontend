@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import { getRoomById } from "../utils/ApiFunctions";
 // import RoomTypeSelector from "../common/RoomTypeSelector";
-import { Input, Form, Button, Upload } from "antd";
+import { Input, Form, Button, Upload, Image } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
 import { updateRoom } from "../utils/ApiFunctions";
+
+const getBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 
 const EditRoom = () => {
   const [form] = Form.useForm();
   const location = useLocation();
   const roomId = location.state.id;
   console.log(roomId);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
 
   const [data, setData] = useState({});
 
@@ -25,13 +35,13 @@ const EditRoom = () => {
         roomPrice: response.roomPrice,
         photo: response.photo
           ? [
-              {
-                uid: "-1",
-                // name: "room-image.jpg",
-                status: "done",
-                url: `data:image/jpeg;base64,${response.photo}`,
-              },
-            ]
+            {
+              uid: "-1",
+              // name: "room-image.jpg",
+              status: "done",
+              url: `data:image/jpeg;base64,${response.photo}`,
+            },
+          ]
           : [],
       });
     } catch (error) {
@@ -74,10 +84,18 @@ const EditRoom = () => {
     }
   };
 
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
+
   return (
     <>
       <section>
-        <div>
+        <div style={{ width: "20%", margin: "auto", boxShadow: "0 0 10px 0 #ccc", padding: "20px", borderRadius: "10px" }}>
           <h2>Chỉnh sửa chi tiết phòng</h2>
 
           <Form form={form} onFinish={handleSubmit} layout="vertical">
@@ -141,9 +159,21 @@ const EditRoom = () => {
                 beforeUpload={() => false} // Để tránh tải lên ngay lập tức
                 style={{ width: "200%", height: "200%" }}
                 accept="image/png, image/jpeg, image/jpg"
-                // onPreview={handlePreview}
+                onPreview={handlePreview}
               >
-                {/* <UploadOutlined /> */}
+                {previewImage && (
+                  <Image
+                    wrapperStyle={{
+                      display: 'none',
+                    }}
+                    preview={{
+                      visible: previewOpen,
+                      onVisibleChange: (visible) => setPreviewOpen(visible),
+                      afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                    }}
+                    src={previewImage}
+                  />
+                )}
                 <Button>Chọn ảnh</Button>
               </Upload>
             </Form.Item>
