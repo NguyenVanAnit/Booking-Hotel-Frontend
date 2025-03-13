@@ -1,61 +1,108 @@
-import { useState, useEffect } from "react"
-import { cancelBooking, getAllBookings, confirmBooking, rejectBooking } from "../utils/ApiFunctions"
-import Header from "../common/Header"
+import { useState, useEffect } from "react";
+import {
+    cancelBooking,
+    getAllBookings,
+    confirmBooking,
+    rejectBooking,
+} from "../utils/ApiFunctions";
+import Header from "../common/Header";
 // import BookingsTable from "./BookingsTable"
 // import DateSlider from "../common/DateSlider"
 // import { parseISO } from "date-fns"
-import { Table, Popconfirm, Button, DatePicker, Modal, Form, Input, Tag } from "antd"
-const { RangePicker } = DatePicker
-import { DeleteOutlined, SearchOutlined, EyeOutlined } from "@ant-design/icons"
-import moment from "moment"
-import { formatVND } from "../helpers/helpers"
-import { ExclamationCircleOutlined, CheckCircleOutlined } from "@ant-design/icons"
+import {
+    Table,
+    Popconfirm,
+    Button,
+    DatePicker,
+    Modal,
+    Form,
+    Input,
+    Tag,
+} from "antd";
+const { RangePicker } = DatePicker;
+import { DeleteOutlined, SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import moment from "moment";
+import { formatVND } from "../helpers/helpers";
+import {
+    ExclamationCircleOutlined,
+    CheckCircleOutlined,
+} from "@ant-design/icons";
+import emailjs from 'emailjs-com';
 
 const Bookings = () => {
-    const [bookingInfo, setBookingInfo] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [filteredBookings, setFilteredBookings] = useState(bookingInfo)
-    const [isModalVisible, setIsModalVisible] = useState(false)
-    const [detailBookingModal, setDetailBookingModal] = useState(false)
+    const [bookingInfo, setBookingInfo] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [filteredBookings, setFilteredBookings] = useState(bookingInfo);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [detailBookingModal, setDetailBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [totalPrice, setTotalPrice] = useState(0)
 
     const fetchData = async () => {
-        setIsLoading(true)
-        const response = await getAllBookings()
+        setIsLoading(true);
+        const response = await getAllBookings();
         if (response) {
-
-            setBookingInfo(response)
-            console.log("booking data", bookingInfo)
+            setBookingInfo(response);
+            console.log("booking data", bookingInfo);
         }
-        setIsLoading(false)
-    }
+        setIsLoading(false);
+    };
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, []);
 
     useEffect(() => {
-        setFilteredBookings(bookingInfo)
-    }, [bookingInfo])
+        setFilteredBookings(bookingInfo);
+    }, [bookingInfo]);
 
     const handleDeleteBooking = async (bookingId) => {
         const reponse = await cancelBooking(bookingId);
-        console.log(bookingId, "Xóa")
-        fetchData()
-    }
+        console.log(bookingId, "Xóa");
+        fetchData();
+        setDetailBookingModal(false);
+    };
 
-    const handleConfirmBooking = async (bookingId) => {
-        const response = await confirmBooking(bookingId);
-        console.log(response)
-        fetchData()
-    }
+    const sendEmail = async (record, confirm) => {
+        try {
+            // Logic duyệt đơn
+            // (Gửi thông tin duyệt đơn tới backend nếu cần)
 
-    const handleRejectBooking = async (bookingId) => {
-        const response = await rejectBooking(bookingId);
-        console.log(response)
-        fetchData()
-    }
+            // Thông tin email
+            const templateParams = {
+                to_name: record.guestFullName,
+                to_email: record.guestEmail, // Email của người dùng
+                message: confirm ? `Đơn đặt phòng với mã code ${record.bookingConfirmationCode} đã được duyệt thành công!` : `Đơn đặt phòng với mã ${record.bookingConfirmationCode} đã bị từ chối vì phòng đã được đặt!`
+            };
 
+            // Gửi email qua EmailJS
+            await emailjs.send(
+                'service_ro6hg6v',       // Service ID từ EmailJS
+                'template_kfrd1g8',      // Template ID từ EmailJS
+                templateParams,
+                'xR7FSz5qWevMG6w_2'           // User ID từ EmailJS
+            );
+
+            console.log('Duyệt đơn và gửi email thành công!');
+        } catch (error) {
+            console.error(error);
+            console.log('Có lỗi xảy ra khi gửi email!');
+        }
+    };
+
+    const handleConfirmBooking = async (record) => {
+        const response = await confirmBooking(record.bookingId);
+        await sendEmail(record, true);
+        console.log(response);
+        fetchData();
+    };
+
+    const handleRejectBooking = async (record) => {
+        const response = await rejectBooking(record.bookingId);
+        await sendEmail(record, false);
+        console.log(response);
+        fetchData();
+    };
 
     const filterBookings = (startDate, endDate) => {
         if (startDate && endDate) {
@@ -63,15 +110,17 @@ const Bookings = () => {
             const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999));
 
             const filteredData = bookingInfo.filter((booking) => {
-                const checkInDate = new Date(booking.checkInDate)
-                const checkOutDate = new Date(booking.checkOutDate)
-                return checkInDate >= adjustedStartDate && checkOutDate <= adjustedEndDate
-            })
-            setFilteredBookings(filteredData)
+                const checkInDate = new Date(booking.checkInDate);
+                const checkOutDate = new Date(booking.checkOutDate);
+                return (
+                    checkInDate >= adjustedStartDate && checkOutDate <= adjustedEndDate
+                );
+            });
+            setFilteredBookings(filteredData);
         } else {
-            setFilteredBookings(bookingInfo)
+            setFilteredBookings(bookingInfo);
         }
-    }
+    };
 
     const handleSearch = (values) => {
         const filteredData = bookingInfo.filter((booking) => {
@@ -90,24 +139,22 @@ const Bookings = () => {
         setIsModalVisible(false);
     };
 
-
     const openDetailModal = (record) => {
         setSelectedBooking(record); // Lưu thông tin đơn đặt phòng
         setDetailBookingModal(true); // Mở modal
-
     };
 
     const formatDate = (date) => {
         if (Array.isArray(date)) {
             const [year, month, day] = date;
-            const formattedMonth = String(month).padStart(2, '0');
-            const formattedDay = String(day).padStart(2, '0');
+            const formattedMonth = String(month).padStart(2, "0");
+            const formattedDay = String(day).padStart(2, "0");
             return `${year}-${formattedMonth}-${formattedDay}`;
-        } else if (typeof date === 'string' || date instanceof Date) {
+        } else if (typeof date === "string" || date instanceof Date) {
             const parsedDate = new Date(date);
             const year = parsedDate.getFullYear();
-            const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-            const day = String(parsedDate.getDate()).padStart(2, '0');
+            const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+            const day = String(parsedDate.getDate()).padStart(2, "0");
             return `${year}-${month}-${day}`;
         }
         return "Invalid Date";
@@ -134,7 +181,7 @@ const Bookings = () => {
             title: "ID phòng",
             width: 70,
             align: "center",
-            render: (record) => record?.room?.id
+            render: (record) => record?.room?.id,
         },
         {
             title: "Thời gian đặt phòng",
@@ -165,24 +212,24 @@ const Bookings = () => {
             align: "center",
         },
         {
-            title: 'Loại phòng',
+            title: "Loại phòng",
             width: 150,
             align: "center",
-            render: (record) => record.room.roomType
+            render: (record) => record.room.roomType,
         },
         {
             title: "Ngày nhận phòng",
             dataIndex: "checkInDate",
             width: 150,
             align: "center",
-            render: (text) => formatDate(text)
+            render: (text) => formatDate(text),
         },
         {
             title: "Ngày trả phòng",
             dataIndex: "checkOutDate",
             width: 150,
             align: "center",
-            render: (text) => formatDate(text)
+            render: (text) => formatDate(text),
         },
         {
             title: "Số người",
@@ -191,29 +238,41 @@ const Bookings = () => {
             align: "center",
         },
         {
-            title: "Số trẻ em",
-            dataIndex: "numOfChildren",
+            title: "Thanh toán",
             width: 100,
             align: "center",
+            render: (record) => {
+                if (record.accountBank == null) {
+                    return "Trực tiếp";
+                } else {
+                    return "Chuyển khoản";
+                }
+            },
         },
         {
             title: "Xem chi tiết",
             width: 70,
             align: "center",
             render: (text, record) => {
-                const checkIn = formatDate(record?.checkInDate);
-                const checkOut = formatDate(record?.checkOutDate);
-                const diffInDays = calculateDays(checkIn, checkOut);
-                const paymentPerDay = record?.room?.roomPrice;
-                const totalPrice = diffInDays * paymentPerDay;
+                // Chuyển mảng thành đối tượng moment
+                const date1 = moment([record?.checkOutDate[0], record?.checkOutDate[1] - 1, record?.checkOutDate[2]]);
+                const date2 = moment([record?.checkInDate[0], record?.checkInDate[1] - 1, record?.checkInDate[2]]);
+
+                // Tính số ngày giữa hai ngày
+                const daysDifference = date1.diff(date2, 'days');
+                setTotalPrice((Number(record?.room?.roomPrice) * daysDifference));
 
                 return (
                     <div>
-                        <Button primary style={{ marginRight: "5%" }} onClick={() => openDetailModal(record)}>
+                        <Button
+                            primary
+                            style={{ marginRight: "5%" }}
+                            onClick={() => openDetailModal(record)}
+                        >
                             <EyeOutlined />
                         </Button>
                     </div>
-                )
+                );
             },
         },
         {
@@ -223,11 +282,17 @@ const Bookings = () => {
             render: (record) => {
                 if (record?.status == 0) {
                     return (
-                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
                             <Popconfirm
                                 title="Xác nhận duyệt đơn đặt phòng"
                                 description="Có chắc chắn duyệt đơn đặt phòng này?"
-                                onConfirm={() => handleConfirmBooking(record.bookingId)}
+                                onConfirm={() => handleConfirmBooking(record)}
                                 okText="Đồng ý"
                                 cancelText="Hủy"
                             >
@@ -239,7 +304,7 @@ const Bookings = () => {
                             <Popconfirm
                                 title="Xác nhận từ chối đơn đặt phòng"
                                 description="Có chắc chắn từ chối đơn đặt phòng này?"
-                                onConfirm={() => handleRejectBooking(record.bookingId)}
+                                onConfirm={() => handleRejectBooking(record)}
                                 okText="Đồng ý"
                                 cancelText="Hủy"
                             >
@@ -247,39 +312,64 @@ const Bookings = () => {
                                     Từ chối
                                 </Button>
                             </Popconfirm>
-
                         </div>
-                    )
+                    );
                 } else if (record?.status == 1) {
                     return (
-                        <div> <Tag icon={<CheckCircleOutlined />} color="success" style={{ fontWeight: '500', fontSize: '14px' }}>
-                            Đã duyệt
-                        </Tag></div>
-                    )
+                        <div>
+                            {" "}
+                            <Tag
+                                icon={<CheckCircleOutlined />}
+                                color="success"
+                                style={{ fontWeight: "500", fontSize: "14px" }}
+                            >
+                                Đã duyệt
+                            </Tag>
+                        </div>
+                    );
                 } else if (record?.status == 2) {
                     return (
-                        <div><Tag icon={<ExclamationCircleOutlined />} color="warning" style={{ fontWeight: '500', fontSize: '14px' }}>
-                            Đã từ chối
-                        </Tag></div>
-                    )
+                        <div>
+                            <Tag
+                                icon={<ExclamationCircleOutlined />}
+                                color="warning"
+                                style={{ fontWeight: "500", fontSize: "14px" }}
+                            >
+                                Đã từ chối
+                            </Tag>
+                        </div>
+                    );
                 } else {
                     return (
-                        <div><Tag color="error" style={{ fontWeight: '500', fontSize: '14px' }}>
-                            Lỗi đơn
-                        </Tag></div>
-                    )
+                        <div>
+                            <Tag
+                                color="error"
+                                style={{ fontWeight: "500", fontSize: "14px" }}
+                            >
+                                Lỗi đơn
+                            </Tag>
+                        </div>
+                    );
                 }
-            }
-        }
+            },
+        },
     ];
 
     return (
-        <section style={{ backgroundColor: "whitesmoke", color: 'white' }}>
+        <section style={{ backgroundColor: "whitesmoke", color: "white" }}>
             <Header title={"Danh sách đặt phòng"} />
 
             <div style={{ padding: "10px 30px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-                    <div style={{ display: "flex", color: "black", alignItems: "center", }}>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "20px",
+                    }}
+                >
+                    <div
+                        style={{ display: "flex", color: "black", alignItems: "center" }}
+                    >
                         <p>Chọn khoảng thời gian đặt phòng: </p>
                         <RangePicker
                             style={{ marginLeft: "20px", marginBottom: "20px" }}
@@ -324,10 +414,10 @@ const Bookings = () => {
                             <Button
                                 style={{ marginRight: "10px" }}
                                 onClick={() => {
-                                    setFilteredBookings(bookingInfo)
-                                    setIsModalVisible(false)
-
-                                }}>
+                                    setFilteredBookings(bookingInfo);
+                                    setIsModalVisible(false);
+                                }}
+                            >
                                 Reset
                             </Button>
                             <Button type="primary" htmlType="submit">
@@ -345,19 +435,98 @@ const Bookings = () => {
                     width={500}
                 >
                     <div style={{ fontSize: "20px" }}>
-                        <p className="text-success">Confirmation Code: {selectedBooking?.bookingConfirmationCode}</p>
-                        <p>ID phòng: <span style={{ fontWeight: 600 }}>{selectedBooking?.room?.id ?? ''}</span></p>
-                        <p>Loại phòng: <span style={{ fontWeight: 600 }}>{selectedBooking?.room?.roomType ?? ''}</span></p>
-                        <p>
-                            Ngày nhận phòng:{" "}<span style={{ fontWeight: 600 }}>{selectedBooking?.checkInDate}</span>
+                        <p className="text-success">
+                            Confirmation Code: {selectedBooking?.bookingConfirmationCode}
                         </p>
                         <p>
-                            Ngày trả phòng:{" "}<span style={{ fontWeight: 600 }}>{selectedBooking?.checkOutDate}</span>
+                            ID phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.room?.id ?? ""}
+                            </span>
                         </p>
-                        <p>Người đặt phòng: <span style={{ fontWeight: 600 }}>{selectedBooking?.guestFullName}</span></p>
-                        <p>Email: <span style={{ fontWeight: 600 }}>{selectedBooking?.guestEmail}</span></p>
-                        <p>Số người lớn: <span style={{ fontWeight: 600 }}>{selectedBooking?.numOfAdults}</span></p>
-                        <p>Số trẻ em: <span style={{ fontWeight: 600 }}>{selectedBooking?.numOfChildren}</span></p>
+                        <p>
+                            Loại phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.room?.roomType ?? ""}
+                            </span>
+                        </p>
+                        <p>
+                            Thời gian đặt phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.bookingTime}
+                            </span>
+                        </p>
+                        <p>
+                            Ngày nhận phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {formatDate(selectedBooking?.checkInDate)}
+                            </span>
+                        </p>
+                        <p>
+                            Ngày trả phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {formatDate(selectedBooking?.checkOutDate)}
+                            </span>
+                        </p>
+                        <p>
+                            Người đặt phòng:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.guestFullName}
+                            </span>
+                        </p>
+                        <p>
+                            Email:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.guestEmail}
+                            </span>
+                        </p>
+                        <p>
+                            Số điện thoại:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.phoneNumber}
+                            </span>
+                        </p>
+                        <p>
+                            Số người lớn:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.numOfAdults}
+                            </span>
+                        </p>
+                        <p>Tổng số tiền: <span style={{ fontWeight: 600 }}>{formatVND(totalPrice)} VND</span></p>
+                        <p>
+                            Kiểu thanh toán:{" "}
+                            <span style={{ fontWeight: 600 }}>
+                                {selectedBooking?.bank ? "Chuyển khoản" : "Trực tiếp"}
+                            </span>
+                        </p>
+                        {selectedBooking?.accountBank && (
+                            <div>
+                                <p>
+                                    Ngân hàng:{" "}
+                                    <span style={{ fontWeight: 600 }}>
+                                        {selectedBooking?.bank}
+                                    </span>
+                                </p>
+                                <p>
+                                    Tên tài khoản:{" "}
+                                    <span style={{ fontWeight: 600 }}>
+                                        {selectedBooking?.nameUserBank}
+                                    </span>
+                                </p>
+                                <p>
+                                    Số tài khoản:{" "}
+                                    <span style={{ fontWeight: 600 }}>
+                                        {selectedBooking?.accountBank}
+                                    </span>
+                                </p>
+                                <p>
+                                    Mã giao dịch:{" "}
+                                    <span style={{ fontWeight: 600 }}>
+                                        {selectedBooking?.transactionCode}
+                                    </span>
+                                </p>
+                            </div>
+                        )}
                         {/* <p>Tổng số tiền: <span style={{ fontWeight: 600 }}>{formatVND(selectedBooking?.totalPrice)} VND</span></p> */}
                     </div>
 
@@ -372,11 +541,10 @@ const Bookings = () => {
                             <DeleteOutlined />
                         </Button>
                     </Popconfirm>
-
                 </Modal>
             </div>
         </section>
-    )
-}
+    );
+};
 
-export default Bookings
+export default Bookings;

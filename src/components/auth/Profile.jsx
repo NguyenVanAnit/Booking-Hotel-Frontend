@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { deleteUser, getBookingsByUserId, getUser } from "../utils/ApiFunctions"
 import { useNavigate } from "react-router-dom"
-import { Table, Modal, Button } from "antd"
+import { Table, Modal, Button, Tag } from "antd"
 import { formatVND } from "../helpers/helpers"
 import { EyeOutlined } from "@ant-design/icons"
 import moment from 'moment';
@@ -61,25 +61,59 @@ const Profile = () => {
         fetchBookings()
     }, [userId])
 
-    const handleDeleteAccount = async () => {
-        const confirmed = window.confirm(
-            "Bạn có chắc chắn muốn xóa tài khoản. Hành động này không thể hoàn tác!"
-        )
-        if (confirmed) {
-            await deleteUser(userId)
-                .then((response) => {
-                    setMessage(response.data)
-                    localStorage.removeItem("token")
-                    localStorage.removeItem("userId")
-                    localStorage.removeItem("userRole")
-                    navigate("/")
-                    window.location.reload()
-                })
-                .catch((error) => {
-                    setErrorMessage(error.data)
-                })
+    const formatDate = (date) => {
+        if (Array.isArray(date)) {
+            const [year, month, day] = date;
+            const formattedMonth = String(month).padStart(2, "0");
+            const formattedDay = String(day).padStart(2, "0");
+            return `${year}-${formattedMonth}-${formattedDay}`;
+        } else if (typeof date === "string" || date instanceof Date) {
+            const parsedDate = new Date(date);
+            const year = parsedDate.getFullYear();
+            const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+            const day = String(parsedDate.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
         }
-    }
+        return "Invalid Date";
+    };
+
+    // const filterBookings = (startDate, endDate) => {
+    //     if (startDate && endDate) {
+    //         const adjustedStartDate = new Date(startDate.setHours(0, 0, 0, 0));
+    //         const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999));
+
+    //         const filteredData = bookingInfo.filter((booking) => {
+    //             const checkInDate = new Date(booking.checkInDate);
+    //             const checkOutDate = new Date(booking.checkOutDate);
+    //             return (
+    //                 checkInDate >= adjustedStartDate && checkOutDate <= adjustedEndDate
+    //             );
+    //         });
+    //         setFilteredBookings(filteredData);
+    //     } else {
+    //         setFilteredBookings(bookingInfo);
+    //     }
+    // };
+
+    // const handleDeleteAccount = async () => {
+    //     const confirmed = window.confirm(
+    //         "Bạn có chắc chắn muốn xóa tài khoản. Hành động này không thể hoàn tác!"
+    //     )
+    //     if (confirmed) {
+    //         await deleteUser(userId)
+    //             .then((response) => {
+    //                 setMessage(response.data)
+    //                 localStorage.removeItem("token")
+    //                 localStorage.removeItem("userId")
+    //                 localStorage.removeItem("userRole")
+    //                 navigate("/")
+    //                 window.location.reload()
+    //             })
+    //             .catch((error) => {
+    //                 setErrorMessage(error.data)
+    //             })
+    //     }
+    // }
 
     const columns = [
         {
@@ -124,7 +158,12 @@ const Profile = () => {
             dataIndex: "status",
             align: "center",
             key: "status",
-            render: () => <span className="text-success">Chờ nhận</span>
+            render: (value) => {
+                if (value == 0) return (<Tag color="blue">Chờ xác nhận</Tag>)
+                else if (value == 1) return (<Tag color="green">Thành công</Tag>)
+                else if (value == 2) return (<Tag color="red">Từ chối</Tag>)
+
+            }
         },
         {
             title: "Xem chi tiết",
@@ -239,16 +278,61 @@ const Profile = () => {
                                     <p>ID phòng: <span style={{ fontWeight: 600 }}>{record?.room?.id ?? ''}</span></p>
                                     <p>Loại phòng: <span style={{ fontWeight: 600 }}>{record?.room?.roomType}</span></p>
                                     <p>
-                                        {/* Ngày nhận phòng:{" "}<span style={{ fontWeight: 600 }}>{record.checkInDate}</span> */}
+                                        Thời gian đặt phòng:{" "}
+                                        <span style={{ fontWeight: 600 }}>
+                                            {record?.bookingTime}
+                                        </span>
                                     </p>
                                     <p>
-                                        {/* Ngày trả phòng:{" "}<span style={{ fontWeight: 600 }}>{record.checkOutDate}</span> */}
+                                        Ngày nhận phòng:{" "}<span style={{ fontWeight: 600 }}>{formatDate(record.checkInDate)}</span>
+                                    </p>
+                                    <p>
+                                        Ngày trả phòng:{" "}<span style={{ fontWeight: 600 }}>{formatDate(record.checkOutDate)}</span>
                                     </p>
                                     <p>Người đặt phòng: <span style={{ fontWeight: 600 }}>{record.guestFullName}</span></p>
                                     <p>Email: <span style={{ fontWeight: 600 }}>{record.guestEmail}</span></p>
+                                    <p>
+                                        Số điện thoại:{" "}
+                                        <span style={{ fontWeight: 600 }}>
+                                            {record?.phoneNumber}
+                                        </span>
+                                    </p>
                                     <p>Số người lớn: <span style={{ fontWeight: 600 }}>{record.numOfAdults}</span></p>
-                                    <p>Số trẻ em: <span style={{ fontWeight: 600 }}>{record.numOfChildren}</span></p>
                                     <p>Tổng số tiền: <span style={{ fontWeight: 600 }}>{formatVND(totalPrice)} VND</span></p>
+                                    <p>
+                                        Kiểu thanh toán:{" "}
+                                        <span style={{ fontWeight: 600 }}>
+                                            {record?.accountBank ? "Chuyển khoản" : "Trực tiếp"}
+                                        </span>
+                                    </p>
+                                    {record?.accountBank && (
+                                        <div>
+                                            <p>
+                                                Ngân hàng:{" "}
+                                                <span style={{ fontWeight: 600 }}>
+                                                    {record?.bank}
+                                                </span>
+                                            </p>
+                                            <p>
+                                                Tên tài khoản:{" "}
+                                                <span style={{ fontWeight: 600 }}>
+                                                    {record?.nameUserBank}
+                                                </span>
+                                            </p>
+                                            <p>
+                                                Số tài khoản:{" "}
+                                                <span style={{ fontWeight: 600 }}>
+                                                    {record?.accountBank}
+                                                </span>
+                                            </p>
+                                            <p>
+                                                Mã giao dịch:{" "}
+                                                <span style={{ fontWeight: 600 }}>
+                                                    {record?.transactionCode}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </Modal>
                             <Table
@@ -259,9 +343,9 @@ const Profile = () => {
                                 bordered
                             />
 
-                            <Button className="mt-5" type="primary" danger onClick={handleDeleteAccount}>
+                            {/* <Button className="mt-5" type="primary" danger onClick={handleDeleteAccount}>
                                 Xóa tài khoản
-                            </Button>
+                            </Button> */}
                         </div>
                     </div>
                 </div>

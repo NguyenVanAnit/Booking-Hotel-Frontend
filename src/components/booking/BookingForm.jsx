@@ -2,10 +2,9 @@ import { useEffect } from "react";
 import moment from "moment";
 import { useState } from "react";
 // import { Form, FormControl, Button } from "react-bootstrap"
-import BookingSummary from "./BookingSummary";
 import { bookRoom, getRoomById } from "../utils/ApiFunctions";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Row, DatePicker, Col, Button, Image, Upload, Radio } from "antd";
+import { Form, Input, Row, DatePicker, Col, Button, Image, Upload, Radio, Modal } from "antd";
 const { RangePicker } = DatePicker;
 import QR from "../../assets/images/qr.jpg";
 import { UploadOutlined } from "@ant-design/icons";
@@ -19,6 +18,9 @@ const BookingForm = ({ room }) => {
     const [totalMoney, setTotalMoney] = useState(0);
     const [totalDays, setTotalDays] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState(true);
+    const [resultResponse, setResultResponse] = useState(false);
+    const [messageResponse, setMessageResponse] = useState('');
+    const [isSuccess, setIsSuccess] = useState(true);
 
     const currentUser = localStorage.getItem("email");
 
@@ -60,7 +62,8 @@ const BookingForm = ({ room }) => {
             phoneNumber: values.phoneNumber,
             transactionCode: values.transactionCode,
             nameUserBank: values.nameUserBank,
-            accountBank: values.accountBank
+            accountBank: values.accountBank,
+            bank: values.bank
         });
 
         try {
@@ -75,19 +78,29 @@ const BookingForm = ({ room }) => {
                 phoneNumber: values.phoneNumber,
                 transactionCode: values.transactionCode,
                 nameUserBank: values.nameUserBank,
-                accountBank: values.accountBank
+                accountBank: values.accountBank,
+                bank: values.bank
             });
 
             if (response.status === 200) {
                 console.log("Đặt phòng thành công");
+                setIsSuccess(true)
+                setResultResponse(true);
+                setMessageResponse(response.data)
             } else {
                 console.log("Đặt phòng thất bại");
+                setIsSuccess(false)
+                setResultResponse(true);
+                setMessageResponse(response.data)
             }
 
             // navigate("/booking-success", { state: { message: confirmationCode } });
         } catch (error) {
             const errorMessage = error.message;
             console.log(errorMessage);
+            setIsSuccess(false)
+            setResultResponse(true);
+            setMessageResponse(errorMessage)
             // navigate("/booking-success", { state: { error: errorMessage } });
         }
     };
@@ -120,7 +133,7 @@ const BookingForm = ({ room }) => {
                                     <p style={{ color: "red" }}>Sau khi đặt phòng, hãy liên hệ hoặc đến thanh toán trực tiếp để chắc chắn nhận phòng</p>
                                 )}
                                 <Form.Item
-                                    label={!paymentMethod ? "Tên đầy đủ" : "Tên tài khoản ngân hàng"}
+                                    label={"Tên đầy đủ"}
                                     name="guestFullName"
                                     rules={[
                                         { required: true, message: "Vui lòng nhập tên đầy đủ" },
@@ -129,68 +142,95 @@ const BookingForm = ({ room }) => {
                                 >
                                     <Input />
                                 </Form.Item>
-                                <Form.Item label="Email" name="guestEmail">
-                                    <Input defaultValue={currentUser} disabled />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Số điện thoại"
-                                    name="phoneNumber"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Vui lòng nhập số điện thoại",
-                                        },
-                                        {
-                                            pattern: /^0\d{9}$/,
-                                            message: "Số điện thoại chưa đúng định dạng",
-                                        },
-                                    ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Ngày nhận phòng - Ngày trả phòng"
-                                    name="checkInDate"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Vui lòng chọn ngày nhận phòng",
-                                        },
-                                    ]}
-                                >
-                                    <RangePicker
-                                        format="YYYY-MM-DD"
-                                        placeholder={["Từ ngày", "Đến ngày"]}
-                                        style={{ width: "100%" }}
-                                        disabledDate={disabledDate}
-                                        onChange={calculatePayment}
-                                    />
-                                </Form.Item>
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <Form.Item label="Email" name="guestEmail">
+                                            <Input defaultValue={currentUser} disabled />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={12}>
+                                        <Form.Item
+                                            label="Số điện thoại"
+                                            name="phoneNumber"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: "Vui lòng nhập số điện thoại",
+                                                },
+                                                {
+                                                    pattern: /^0\d{9}$/,
+                                                    message: "Số điện thoại chưa đúng định dạng",
+                                                },
+                                            ]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={16}>
+                                    <Col span={18}>
+                                        <Form.Item
+                                            label="Ngày nhận phòng - Ngày trả phòng"
+                                            name="checkInDate"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: "Vui lòng chọn ngày nhận phòng",
+                                                },
+                                            ]}
+                                        >
+                                            <RangePicker
+                                                format="YYYY-MM-DD"
+                                                placeholder={["Từ ngày", "Đến ngày"]}
+                                                style={{ width: "100%" }}
+                                                disabledDate={disabledDate}
+                                                onChange={calculatePayment}
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                        <Form.Item
+                                            label="Số người"
+                                            name="numOfAdults"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: "Vui lòng chọn số người lớn",
+                                                },
+                                            ]}
+                                        >
+                                            <Input type="number" min={1} />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
 
-                                <Form.Item
-                                    label="Số người"
-                                    name="numOfAdults"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Vui lòng chọn số người lớn",
-                                        },
-                                    ]}
-                                >
-                                    <Input type="number" min={1} />
-                                </Form.Item>
 
                                 {paymentMethod && (
                                     <>
-                                        <Form.Item label="Mã giao dịch chuyển khoản" name="transactionCode" rules={[{ required: true, message: "Vui lòng nhập mã giao dịch" }]} >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item label="Tên tài khoản ngân hàng" name="nameUserBank" rules={[{ required: true, message: "Vui lòng nhập tên tài khoản" }]} >
-                                            <Input />
-                                        </Form.Item>
-                                        <Form.Item label="Số tài khoản" name="accountBank" rules={[{ required: true, message: "Vui lòng nhập số tài khoản" }]} >
-                                            <Input type="number" />
-                                        </Form.Item>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item label="Tên ngân hàng" name="bank" rules={[{ required: true, message: "Vui lòng nhập tên ngân hàng" }]} >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item label="Mã giao dịch chuyển khoản" name="transactionCode" rules={[{ required: true, message: "Vui lòng nhập mã giao dịch" }]} >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                        <Row gutter={16}>
+                                            <Col span={12}>
+                                                <Form.Item label="Tên tài khoản ngân hàng" name="nameUserBank" rules={[{ required: true, message: "Vui lòng nhập tên tài khoản" }]} >
+                                                    <Input />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12}>
+                                                <Form.Item label="Số tài khoản" name="accountBank" rules={[{ required: true, message: "Vui lòng nhập số tài khoản" }]} >
+                                                    <Input type="number" />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
                                     </>
                                 )}
 
@@ -201,6 +241,17 @@ const BookingForm = ({ room }) => {
                                 </Form.Item>
                             </Form>
                         </div>
+
+                        <Modal open={resultResponse} onCancel={() => setResultResponse(false)} footer>
+                            <div className={{ padding: '40px' }}>
+                                <h3>{isSuccess ? 'Đặt phòng thành công, vui lòng chờ duyệt đơn từ khách sạn' : 'Lỗi đặt phòng'}</h3>
+                                <p style={{ fontWeight: 600, fontSize: 20 }} className={isSuccess ? "text-success" : 'text-warning'}>{messageResponse}</p>
+                                {isSuccess && <p style={{ fontSize: '16px' }}>Vui lòng kiểm tra email để theo dõi việc duyệt đơn của đơn đặt phòng</p>}
+                                <Button href="/">
+                                    Quay lại trang chủ
+                                </Button>
+                            </div>
+                        </Modal>
                     </div>
 
                     <div className="col-md-4" style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
