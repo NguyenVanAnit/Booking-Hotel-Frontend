@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAllRooms, deleteRoom, getRoomTypes } from "../utils/ApiFunctions";
 import { Button, Table, Popconfirm, Select } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { formatVND } from "../helpers/helpers";
 
@@ -125,6 +125,7 @@ const ExistingRooms = () => {
     <div style={{ padding: "40px" }}>
       <h2 style={{ marginBottom: '30px' }}>Danh sách phòng </h2>
 
+
       <div style={{ paddingBottom: '20px' }}    >
 
         <Select
@@ -144,6 +145,15 @@ const ExistingRooms = () => {
           }}
         />
       </div>
+
+      <Button 
+        onClick={() => navigate("/add-room")}
+        style={{ float: "right", marginBottom: "20px" }}
+        type="primary"
+        icon={<PlusCircleOutlined />}
+        >
+          Thêm phòng
+          </Button>
 
       <Table
         columns={columns}

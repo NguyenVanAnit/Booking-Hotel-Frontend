@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { getRoomById } from "../utils/ApiFunctions";
 // import RoomTypeSelector from "../common/RoomTypeSelector";
-import { Input, Form, Button, Upload, Image } from "antd";
+import { Input, Form, Button, Upload, Image, Row, Col, InputNumber } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
 import { updateRoom } from "../utils/ApiFunctions";
@@ -33,6 +33,7 @@ const EditRoom = () => {
       form.setFieldsValue({
         roomType: response.roomType,
         roomPrice: response.roomPrice,
+        name: response.name,
         photo: response.photo
           ? [
             {
@@ -95,19 +96,93 @@ const EditRoom = () => {
   return (
     <>
       <section>
-        <div style={{ width: "20%", margin: "auto", boxShadow: "0 0 10px 0 #ccc", padding: "20px", borderRadius: "10px" }}>
+        <div style={{ width: 600, margin: "auto", boxShadow: "0 0 10px 0 #ccc", padding: "20px", borderRadius: "10px" }}>
           <h2>Chỉnh sửa chi tiết phòng</h2>
 
           <Form form={form} onFinish={handleSubmit} layout="vertical">
-            <Form.Item
-              label="Loại phòng"
-              name="roomType"
-              rules={[
-                { required: true, message: "Loại phòng không được để trống" },
-              ]}
-            >
-              <Input type="text" />
-            </Form.Item>
+            <Row gutter={32}>
+              <Col span={12}>
+                <Form.Item
+                  label="Tên phòng"
+                  name="name"
+                  rules={[
+                    { required: true, message: "Tên phòng không được để trống" },
+                  ]}
+                >
+                  <Input type="text" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Loại phòng"
+                  name="roomType"
+                  rules={[
+                    { required: true, message: "Loại phòng không được để trống" },
+                  ]}
+                >
+                  <Input type="text" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={32}>
+              <Col span={12}>
+                <Form.Item
+                  label="Tầng"
+                  name="floor"
+                  rules={[
+                    { required: true, message: "Tầng không được để trống" },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Giới hạn độ tuổi"
+                  name="ageLimit"
+                  rules={[
+                    { required: true, message: "Giới hạn độ tuổi không được để trống" },
+                  ]}
+                >
+                  <Input type="text" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={32}>
+              <Col span={8}>
+                <Form.Item
+                  label="Số người tối đa"
+                  name="maxNumberPeople"
+                  rules={[
+                    { required: true, message: "Số người tối đa không được để trống" },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} min={0} />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  label="Số người lớn tối đa"
+                  name="maxNumberAdult"
+                  rules={[
+                    { required: true, message: "Số người lớn tối đa không được để trống" },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} min={0} />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  label="Số trẻ em tối đa"
+                  name="maxNumberChildren"
+                  rules={[
+                    { required: true, message: "Số trẻ em tối đa không được để trống" },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} min={0} />
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               label="Giá phòng"
               name="roomPrice"

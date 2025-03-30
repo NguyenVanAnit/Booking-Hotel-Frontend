@@ -18,6 +18,7 @@ import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
 import { AuthProvider } from "./components/auth/AuthProvider"
 import RequireAuth from "./components/auth/RequireAuth"
+import ServiceList from "./components/service/ServiceList";
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/service-list" element={<ServiceList />} />
           </Routes>
           <Footer />
         </Router>

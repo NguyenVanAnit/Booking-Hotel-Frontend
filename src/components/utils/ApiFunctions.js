@@ -34,7 +34,7 @@ export const getRoomTypes = async () => {
   try {
     const response = await api.get("/rooms/room/types");
     console.log("room types", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.log(error);
     throw new Error("Error fetching room types");
@@ -45,7 +45,7 @@ export const getAllRooms = async () => {
   try {
     const response = await api.get("/rooms/all-rooms");
     // console.log("all rooms", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.log(error);
     throw new Error("Error fetching all rooms");
@@ -83,7 +83,7 @@ export const getRoomById = async (roomId) => {
   try {
     const response = await api.get(`/rooms/room/${roomId}`);
     console.log("room by id", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.log(error);
     throw new Error("Error fetching room by id");
@@ -99,8 +99,8 @@ export const bookRoom = async (roomId, booking) => {
     console.log("booked room", response);
     return response;
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw new Error(error.response.data);
+    if (error.response && error.response.data.data.data) {
+      throw new Error(error.response.data.data.data);
     } else {
       throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
     }
@@ -113,10 +113,10 @@ export const getAllBookings = async () => {
       headers: getHeader(),
     });
     console.log("all bookings", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw new Error(error.response.data);
+    if (error.response && error.response.data.data.data) {
+      throw new Error(error.response.data.data.data);
     } else {
       throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
     }
@@ -129,10 +129,10 @@ export const getBookingByConfirmationCode = async (confirmationCode) => {
       `/bookings/confirmation/${confirmationCode}`
     );
     console.log("confirmationcode", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw new Error(error.response.data);
+    if (error.response && error.response.data.data.data) {
+      throw new Error(error.response.data.data.data);
     } else {
       throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
     }
@@ -143,10 +143,10 @@ export const cancelBooking = async (bookingId) => {
   try {
     const response = await api.delete(`/bookings/booking/${bookingId}/delete`);
     console.log("cancel booking", response);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
-    if (error.response && error.response.data) {
-      throw new Error(error.response.data);
+    if (error.response && error.response.data.data.data) {
+      throw new Error(error.response.data.data.data);
     } else {
       throw new Error(`Lỗi khi đặt phòng: ${error.message}`);
     }
@@ -166,10 +166,10 @@ export async function getAvailableRooms(checkInDate, checkOutDate, roomType) {
 export async function registerUser(registration) {
   try {
     const response = await api.post("/auth/register-user", registration);
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
-    if (error.reeponse && error.response.data) {
-      throw new Error(error.response.data);
+    if (error.reeponse && error.response.data.data.data) {
+      throw new Error(error.response.data.data.data);
     } else {
       throw new Error(`User registration error : ${error.message}`);
     }
@@ -181,7 +181,7 @@ export async function loginUser(login) {
   try {
     const response = await api.post("/auth/login", login);
     if (response.status >= 200 && response.status < 300) {
-      return response.data;
+      return response.data.data.data;
     } else {
       return null;
     }
@@ -197,7 +197,7 @@ export async function getUserProfile(userId, token) {
     const response = await api.get(`users/profile/${userId}`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.error("Error fetching user profile:", error.message);
     throw new Error("Failed to fetch user profile");
@@ -210,7 +210,7 @@ export async function deleteUser(userId) {
     const response = await api.delete(`/users/delete/${userId}`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     return error.message;
   }
@@ -222,7 +222,7 @@ export async function getUser(userId, token) {
     const response = await api.get(`/users/${userId}`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.error("Error fetching user:", error.message);
     throw new Error("Failed to fetch user");
@@ -235,7 +235,7 @@ export async function getBookingsByUserId(userId, token) {
     const response = await api.get(`/bookings/user/${userId}/bookings`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.error("Error fetching bookings:", error.message);
     throw new Error("Failed to fetch bookings");
@@ -247,7 +247,7 @@ export const confirmBooking = async (bookingId) => {
     const response = await api.patch(`/bookings/booking/${bookingId}/accept`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.error("Error confirming booking:", error.message);
     throw new Error("Failed to confirm booking");
@@ -259,7 +259,7 @@ export const rejectBooking = async (bookingId) => {
     const response = await api.patch(`/bookings/booking/${bookingId}/reject`, {
       headers: getHeader(),
     });
-    return response.data;
+    return response.data.data.data;
   } catch (error) {
     console.error("Error rejecting booking:", error.message);
     throw new Error("Failed to reject booking");
