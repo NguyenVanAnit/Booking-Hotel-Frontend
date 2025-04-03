@@ -147,7 +147,7 @@ const ExistingRooms = () => {
       </div>
 
       <Button 
-        onClick={() => navigate("/add-room")}
+        onClick={() => navigate("/edit-room", { state: { id: null } })}
         style={{ float: "right", marginBottom: "20px" }}
         type="primary"
         icon={<PlusCircleOutlined />}

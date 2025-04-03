@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addRoom } from "../utils/ApiFunctions";
 // import RoomTypeSelector from "../common/RoomTypeSelector";
 import { Input, Form, Button, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { getAllServices } from "../utils/services";
 
 const AddRoom = () => {
   const [imagePreview, setImagePreview] = useState("");
+
+  const fetchData = async () => {
+    try{
+      const res = await getAllServices();
+      console.log("res", res);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleImageChange = (e) => {
     const selectImage = e.target.files[0];

@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { getRoomById } from "../utils/ApiFunctions";
 // import RoomTypeSelector from "../common/RoomTypeSelector";
-import { Input, Form, Button, Upload, Image, Row, Col, InputNumber } from "antd";
+import {
+  Input,
+  Form,
+  Button,
+  Upload,
+  Image,
+  Row,
+  Col,
+  InputNumber,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
 import { updateRoom } from "../utils/ApiFunctions";
@@ -18,9 +27,9 @@ const EditRoom = () => {
   const [form] = Form.useForm();
   const location = useLocation();
   const roomId = location.state.id;
-  console.log(roomId);
+  console.log("dada", roomId);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
+  const [previewImage, setPreviewImage] = useState("");
 
   const [data, setData] = useState({});
 
@@ -36,13 +45,13 @@ const EditRoom = () => {
         name: response.name,
         photo: response.photo
           ? [
-            {
-              uid: "-1",
-              // name: "room-image.jpg",
-              status: "done",
-              url: `data:image/jpeg;base64,${response.photo}`,
-            },
-          ]
+              {
+                uid: "-1",
+                // name: "room-image.jpg",
+                status: "done",
+                url: `data:image/jpeg;base64,${response.photo}`,
+              },
+            ]
           : [],
       });
     } catch (error) {
@@ -53,7 +62,9 @@ const EditRoom = () => {
   console.log(data);
 
   useState(() => {
-    fetchData();
+    if (roomId) {
+      fetchData();
+    }
   });
 
   const [imagePreview, setImagePreview] = useState("");
@@ -96,8 +107,16 @@ const EditRoom = () => {
   return (
     <>
       <section>
-        <div style={{ width: 600, margin: "auto", boxShadow: "0 0 10px 0 #ccc", padding: "20px", borderRadius: "10px" }}>
-          <h2>Chỉnh sửa chi tiết phòng</h2>
+        <div
+          style={{
+            width: 600,
+            margin: "auto",
+            boxShadow: "0 0 10px 0 #ccc",
+            padding: "20px",
+            borderRadius: "10px",
+          }}
+        >
+          <h2>{roomId ? "Chỉnh sửa chi tiết phòng" : "Thêm phòng"}</h2>
 
           <Form form={form} onFinish={handleSubmit} layout="vertical">
             <Row gutter={32}>
@@ -106,7 +125,10 @@ const EditRoom = () => {
                   label="Tên phòng"
                   name="name"
                   rules={[
-                    { required: true, message: "Tên phòng không được để trống" },
+                    {
+                      required: true,
+                      message: "Tên phòng không được để trống",
+                    },
                   ]}
                 >
                   <Input type="text" />
@@ -117,7 +139,10 @@ const EditRoom = () => {
                   label="Loại phòng"
                   name="roomType"
                   rules={[
-                    { required: true, message: "Loại phòng không được để trống" },
+                    {
+                      required: true,
+                      message: "Loại phòng không được để trống",
+                    },
                   ]}
                 >
                   <Input type="text" />
@@ -141,7 +166,10 @@ const EditRoom = () => {
                   label="Giới hạn độ tuổi"
                   name="ageLimit"
                   rules={[
-                    { required: true, message: "Giới hạn độ tuổi không được để trống" },
+                    {
+                      required: true,
+                      message: "Giới hạn độ tuổi không được để trống",
+                    },
                   ]}
                 >
                   <Input type="text" />
@@ -154,7 +182,10 @@ const EditRoom = () => {
                   label="Số người tối đa"
                   name="maxNumberPeople"
                   rules={[
-                    { required: true, message: "Số người tối đa không được để trống" },
+                    {
+                      required: true,
+                      message: "Số người tối đa không được để trống",
+                    },
                   ]}
                 >
                   <InputNumber style={{ width: "100%" }} min={0} />
@@ -165,7 +196,10 @@ const EditRoom = () => {
                   label="Số người lớn tối đa"
                   name="maxNumberAdult"
                   rules={[
-                    { required: true, message: "Số người lớn tối đa không được để trống" },
+                    {
+                      required: true,
+                      message: "Số người lớn tối đa không được để trống",
+                    },
                   ]}
                 >
                   <InputNumber style={{ width: "100%" }} min={0} />
@@ -176,7 +210,10 @@ const EditRoom = () => {
                   label="Số trẻ em tối đa"
                   name="maxNumberChildren"
                   rules={[
-                    { required: true, message: "Số trẻ em tối đa không được để trống" },
+                    {
+                      required: true,
+                      message: "Số trẻ em tối đa không được để trống",
+                    },
                   ]}
                 >
                   <InputNumber style={{ width: "100%" }} min={0} />
@@ -195,7 +232,7 @@ const EditRoom = () => {
             >
               <Input type="number" />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               name="photo"
               label="Ảnh phòng"
               valuePropName="fileList"
@@ -239,22 +276,23 @@ const EditRoom = () => {
                 {previewImage && (
                   <Image
                     wrapperStyle={{
-                      display: 'none',
+                      display: "none",
                     }}
                     preview={{
                       visible: previewOpen,
                       onVisibleChange: (visible) => setPreviewOpen(visible),
-                      afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                      afterOpenChange: (visible) =>
+                        !visible && setPreviewImage(""),
                     }}
                     src={previewImage}
                   />
                 )}
                 <Button>Chọn ảnh</Button>
               </Upload>
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Thêm phòng
+                {roomId ? "Lưu phòng" : "Thêm phòng"}
               </Button>
             </Form.Item>
           </Form>

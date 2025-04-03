@@ -1,6 +1,7 @@
 import "./App.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "/node_modules/bootstrap/dist/js/bootstrap.min.js";
+import { ToastContainer } from "react-toastify";
 import AddRoom from "./components/room/AddRoom";
 import ExistingRooms from "./components/room/ExistingRooms";
 import Home from "./components/home/Home";
@@ -19,6 +20,7 @@ import Profile from "./components/auth/Profile"
 import { AuthProvider } from "./components/auth/AuthProvider"
 import RequireAuth from "./components/auth/RequireAuth"
 import ServiceList from "./components/service/ServiceList";
+import AddService from "./components/service/AddService";
 
 
 function App() {
@@ -46,9 +48,11 @@ function App() {
             <Route path="/register" element={<Registration />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/service-list" element={<ServiceList />} />
+            <Route path="/add-service" element={<AddService />} />
           </Routes>
           <Footer />
         </Router>
+        <ToastContainer/>
       </main>
     </AuthProvider>
   );

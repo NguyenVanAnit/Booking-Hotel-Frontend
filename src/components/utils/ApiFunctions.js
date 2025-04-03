@@ -2,13 +2,15 @@ import axios from "axios";
 
 export const api = axios.create({
   baseURL: "http://localhost:9192",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export const getHeader = () => {
   const token = localStorage.getItem("token");
   return {
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
   };
 };
 
@@ -64,13 +66,14 @@ export const deleteRoom = async (roomId) => {
 };
 
 export const updateRoom = async (roomId, roomData) => {
-  const formData = new FormData();
-  formData.append("photo", roomData.photo);
-  formData.append("roomType", roomData.roomType);
-  formData.append("roomPrice", roomData.roomPrice);
+  // const formData = new FormData();
+  // formData.append("photo", roomData.photo);
+  // formData.append("roomType", roomData.roomType);
+  // formData.append("roomPrice", roomData.roomPrice);
+  console.log('roomdata', roomData);
 
   try {
-    const response = await api.put(`/rooms/update/room/${roomId}`, formData);
+    const response = await api.put(`/rooms/update/room/${roomId}`, roomData);
     console.log("update room", response);
     return response;
   } catch (error) {
@@ -166,7 +169,7 @@ export async function getAvailableRooms(checkInDate, checkOutDate, roomType) {
 export async function registerUser(registration) {
   try {
     const response = await api.post("/auth/register-user", registration);
-    return response.data.data.data;
+    return response.data;
   } catch (error) {
     if (error.reeponse && error.response.data.data.data) {
       throw new Error(error.response.data.data.data);
@@ -181,7 +184,7 @@ export async function loginUser(login) {
   try {
     const response = await api.post("/auth/login", login);
     if (response.status >= 200 && response.status < 300) {
-      return response.data.data.data;
+      return response.data;
     } else {
       return null;
     }
@@ -265,3 +268,4 @@ export const rejectBooking = async (bookingId) => {
     throw new Error("Failed to reject booking");
   }
 };
+
