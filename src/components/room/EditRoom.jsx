@@ -79,15 +79,15 @@ const EditRoom = () => {
     // e.preventDefault();
     console.log(values);
     try {
-      const success = await updateRoom(roomId, {
-        photo: values.photo[0].originFileObj,
-        roomType: values.roomType,
-        roomPrice: values.roomPrice,
-      });
+      const success = await updateRoom(roomId, values
+      //   {
+      //   photo: values.photo[0].originFileObj,
+      //   roomType: values.roomType,
+      //   roomPrice: values.roomPrice,
+      // }
+    );
       if (success != undefined) {
-        // alert("Room added successfully");
         console.log("Room updated successfully");
-        setImagePreview("");
       } else {
         alert("Failed to add room");
       }
@@ -220,7 +220,9 @@ const EditRoom = () => {
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
+            <Row gutter={32}>
+              <Col span={12}>
+              <Form.Item
               label="Giá phòng"
               name="roomPrice"
               rules={[
@@ -230,8 +232,25 @@ const EditRoom = () => {
                 },
               ]}
             >
-              <Input type="number" />
+              <Input type="number" addonAfter="VND"/>
             </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Số lượng giường"
+                  name="numberBed"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Số lượng giường không được để trống",
+                    },
+                  ]}
+                >
+                  <InputNumber style={{ width: "100%" }} min={0} />
+                </Form.Item>
+              </Col>
+            </Row>
+            
             {/* <Form.Item
               name="photo"
               label="Ảnh phòng"
