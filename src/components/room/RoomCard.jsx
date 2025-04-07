@@ -1,66 +1,160 @@
 import React, { useState } from "react";
-import { Card, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { Image, Button } from "antd";
 import { formatVND } from "../helpers/helpers";
-
+import { ArrowRightOutlined, StarFilled } from "@ant-design/icons";
 
 const RoomCard = ({ room }) => {
   const navigate = useNavigate();
-  const ads = [
-    'Khách sạn sang trọng, tiện nghi hiện đại, giá cả phải chăng!',
-    'Trải nghiệm không gian nghỉ dưỡng tuyệt vời tại khách sạn chúng tôi!',
-    'Phòng nghỉ sạch sẽ, thoải mái, phù hợp cho mọi chuyến đi!',
-    'Khám phá không gian nghỉ dưỡng đẳng cấp ngay hôm nay!',
-    'Khách sạn gần trung tâm, dễ dàng di chuyển, giá tốt!',
-    'Chúng tôi mang đến cho bạn một kỳ nghỉ tuyệt vời và thoải mái nhất!',
-    'Tận hưởng không gian yên bình tại khách sạn chất lượng cao của chúng tôi!',
-    'Khách sạn đẳng cấp, dịch vụ chuyên nghiệp, luôn làm hài lòng khách hàng!',
-    'Chào đón bạn đến với khách sạn của chúng tôi – nơi lưu giữ những kỷ niệm đẹp!',
-    'Phòng nghỉ hiện đại, sang trọng, sẵn sàng chào đón bạn!'
-  ];
-
-  // Hàm để random câu quảng cáo
-  const getRandomAd = () => {
-    const randomIndex = Math.floor(Math.random() * ads.length);
-    return ads[randomIndex];
-  };
-
-  // Sử dụng hook useState để lưu câu quảng cáo được chọn ngẫu nhiên
-  const [ad, setAd] = useState(getRandomAd);
 
   return (
-    <Col key={room.id} className="mb-4" xs={12}>
-      <Card>
-        <Card.Body className="d-flex flex-wrap align-items-center">
-          <div>
-            <Card.Title style={{ padding: "10px 40px 10px 0", fontSize: '40px', color: "rgb(12, 111, 168)" }}>
-              {room.roomNumber ?? ''}
-            </Card.Title>
+    <div
+      style={{
+        width: "100%",
+        height: 250,
+        borderRadius: 10,
+        overflow: "hidden",
+        marginBottom: 20,
+        backgroundColor: "#f8f9fa",
+        border: "1px solid #003b95",
+        display: "flex",
+        justifyContent: "space-between",
+      }}
+    >
+      <div
+        style={{
+          width: 300,
+          backgroundColor: "#CFCFCF",
+          padding: 10,
+          borderRadius: 10,
+          overflow: "hidden",
+        }}
+      >
+        <Image
+          src={`data:image/png;base64, ${room.photo}`}
+          alt="Room Photo"
+          style={{ height: "100%", objectFit: "cover", width: "100%" }}
+          preview={false}
+          onClick={() => navigate("/book-room", { state: room })}
+        />
+      </div>
+      <div style={{ width: "80%", padding: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 10,
+            height: "20%",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: "#006ce4",
+              cursor: "pointer",
+              width: "70%",
+              textAlign: "start",
+            }}
+          >
+            {room?.name}
           </div>
-          <div className="flex-shrink-0 mr-3 mb-3 mb-md-0">
-            <Image
-              src={`data:image/png;base64, ${room.photo}`}
-              alt="Room Photo"
-              style={{ width: "100%", maxWidth: "200px", height: "auto", borderRadius: "10px" }}
-            />
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 600,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <div>Tuyệt vời</div>
+            <div
+              style={{
+                backgroundColor: "#003b95",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: 10,
+              }}
+            >
+              {room?.totalRating ? room?.totalRating : '4.1'} <StarFilled style={{ color: "#FFFF00" }} />
+            </div>
           </div>
-          <div className="flex-grow-1 ml-3 px-5" style={{ textAlign: "left", overflow: "hidden", textOverflow: "ellipsis" }}>
-            <Card.Title className="hotel-color">{room.roomType}</Card.Title>
-            <Card.Title className="room-price">
-              {formatVND(room.roomPrice)} VND / đêm
-            </Card.Title>
-            <Card.Text style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {ad}
-            </Card.Text>
-          </div>
-          <div className="flex-shrink-0 mt-3">
-            <Button type="primary" onClick={() => navigate('/book-room', { state: room })}>Đặt phòng ngay</Button>
-          </div>
-        </Card.Body>
-      </Card>
-    </Col>
+        </div>
 
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 10,
+            height: "80%",
+          }}
+        >
+          <div
+            style={{
+              width: "60%",
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                textAlign: "start",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 3,
+              }}
+            >
+              {room?.description}
+            </div>
+          </div>
+          <div
+            style={{
+              width: "40%",
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "end",
+              flexDirection: "column",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                textAlign: "end",
+              }}
+            >
+              3 đêm, 2 người lớn, 1 trẻ em
+            </div>
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 600,
+                textAlign: "end",
+              }}
+            >
+              {formatVND(room?.roomPrice)} VNĐ
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                textAlign: "end",
+                marginBottom: 10,
+              }}
+            >
+              Đã bao gồm thuế và phí
+            </div>
+            <Button type="primary" onClick={() => navigate("/detail-room", { state: room?.id })}>
+                Xem chi tiết
+                <ArrowRightOutlined style={{ marginLeft: 5 }} />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

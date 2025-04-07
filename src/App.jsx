@@ -21,6 +21,10 @@ import { AuthProvider } from "./components/auth/AuthProvider"
 import RequireAuth from "./components/auth/RequireAuth"
 import ServiceList from "./components/service/ServiceList";
 import AddService from "./components/service/AddService";
+import ServiceOfRoom from "./components/room/ServicesOfRoom";
+import DetailRoom from "./components/room/DetailRoom";
+import PaymentResult from "./components/booking/Payment";
+import VNPayCallback from "./components/booking/VNPayCallback";
 
 
 function App() {
@@ -36,6 +40,7 @@ function App() {
             <Route path="/existing-rooms" element={<ExistingRooms />} />
             <Route path="/browse-all-rooms" element={<RoomListing />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/detail-room" element={<DetailRoom />} />
             <Route path="book-room" element={
               <RequireAuth>
                 <Checkout />
@@ -49,6 +54,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/service-list" element={<ServiceList />} />
             <Route path="/add-service" element={<AddService />} />
+            <Route path="services-of-room" element={<ServiceOfRoom />} />
+            <Route path="/payment-result" element={<PaymentResult />} />
+            <Route path="/vnpay-callback" element={<VNPayCallback />} />
           </Routes>
           <Footer />
         </Router>

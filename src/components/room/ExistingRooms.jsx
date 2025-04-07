@@ -91,10 +91,26 @@ const ExistingRooms = () => {
       render: (text) => <span>{formatVND(text)} VNĐ</span>,
     },
     {
+      title: "Dịch vụ",
+      width: 50,
+      align: "center",
+      render: (record) => {
+        return (
+          <Button
+            color="primary"
+            variant="outlined"
+            onClick={() => navigate("/services-of-room", { state: { id: record?.id, name: record?.name } })}
+          >
+            Xem dịch vụ
+          </Button>
+        )
+      }
+    },
+    {
       title: "Chức năng",
       dataIndex: "action",
       key: "action",
-      width: 200,
+      width: 100,
       align: "center",
       render: (text, record) => (
         <div>
@@ -125,9 +141,7 @@ const ExistingRooms = () => {
     <div style={{ padding: "40px" }}>
       <h2 style={{ marginBottom: '30px' }}>Danh sách phòng </h2>
 
-
       <div style={{ paddingBottom: '20px' }}    >
-
         <Select
           // defaultValue="lucy"
           style={{

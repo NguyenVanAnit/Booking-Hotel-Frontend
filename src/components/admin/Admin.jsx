@@ -72,7 +72,7 @@ const Admin = () => {
                     }}
                 >
                     <Link
-                        to={"/service-list"}
+                        to={"/service-list "}
                         style={{
                             textDecoration: "none",
                             color: "black",

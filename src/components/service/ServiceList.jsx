@@ -142,7 +142,7 @@ const ServiceList = () => {
 
   return (
     <div>
-      <h1>Danh sách dịch vụ</h1>
+      <h2>Danh sách dịch vụ</h2>
       {/* Service list content goes here */}
       <div style={{ width: "80%", margin: "auto" }}>
         <Button
