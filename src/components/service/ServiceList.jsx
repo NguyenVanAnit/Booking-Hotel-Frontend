@@ -141,7 +141,7 @@ const ServiceList = () => {
   ];
 
   return (
-    <div>
+    <div style={{ marginTop: 40 }}>
       <h2>Danh sách dịch vụ</h2>
       {/* Service list content goes here */}
       <div style={{ width: "80%", margin: "auto" }}>
@@ -158,7 +158,9 @@ const ServiceList = () => {
         <Table
           dataSource={data}
           columns={columns}
-          pagination={false}
+          pagination={{
+            pageSize: 10
+          }}  
           loading={loading}
           rowKey={(record) => record._id}
           bordered

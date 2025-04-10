@@ -1,93 +1,127 @@
-import { useContext, useState, useEffect } from "react"
-import { NavLink, Link } from "react-router-dom"
-import Logout from "../auth/Logout"
+import { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Layout, Menu, Dropdown, Button } from "antd";
+import { DownOutlined, LoginOutlined, UserOutlined } from "@ant-design/icons";
+import Logout from "../auth/Logout";
+
+const { Header } = Layout;
 
 const NavBar = () => {
-    const [showAccount, setShowAccount] = useState(false)
+    const [showAccount, setShowAccount] = useState(false);
+    const isLoggedIn = localStorage.getItem("token");
+    const userRole = localStorage.getItem("userRole");
 
-    const handleAccountClick = () => {
-        setShowAccount(!showAccount)
-    }
-
-    const isLoggedIn = localStorage.getItem("token")
-    const userRole = localStorage.getItem("userRole")
-    console.log(isLoggedIn, userRole)
-
-    // Cập nhật lại trạng thái khi isLoggedIn hoặc userRole thay đổi
     useEffect(() => {
         if (isLoggedIn && userRole === "ROLE_ADMIN") {
-            setShowAccount(true);  // tự động hiển thị khi thỏa mãn điều kiện
+            setShowAccount(true);
+        } else {
+            setShowAccount(false);
         }
-    }, [isLoggedIn, userRole]) // Mỗi khi isLoggedIn hoặc userRole thay đổi
+    }, [isLoggedIn, userRole]);
+
+    const handleMenuClick = () => {
+        setShowAccount(!showAccount);
+    };
+
+    const accountMenu = (
+        <Menu
+            style={{
+                minWidth: 200,
+                fontSize: 16,
+                padding: "0.5rem",
+            }}
+        >
+            {isLoggedIn ? (
+                <Menu.Item key="logout">
+                    <Logout />
+                </Menu.Item>
+            ) : (
+                <Menu.Item key="login">
+                    <Link to="/login"><LoginOutlined /> Đăng nhập</Link>
+                </Menu.Item>
+            )}
+        </Menu>
+    );
+
+    const RoleGuessMenu = (props) => {
+        return (
+            <>
+                <Menu.Item key="history-booking">
+                    <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                        Lịch sử đặt phòng
+                    </NavLink>
+                </Menu.Item>
+            </>
+        );
+    };
+
+    const RoleAdminMenu = (props) => {
+        return (
+            <>
+                <Menu.Item key="admin">
+                    <NavLink to="/admin" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                        Quản lý
+                    </NavLink>
+                </Menu.Item>
+            </>
+        );
+    };
 
     return (
-        <nav className="navbar navbar-expand-lg bg-body-tertiary px-5 shadow mb-5 sticky-top">
-            <div className="container-fluid">
-                <Link to={"/"} className="navbar-brand">
-                    <span className="hotel-color">Khách sạn Bách Khoa</span>
-                </Link>
+        <Header
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#003b95",
+                boxShadow: "0 2px 8px #f0f1f2",
+                padding: "0 2rem",
+                position: "sticky",
+                top: 0,
+                zIndex: 1000,
+                height: 100,
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+            }}
+        >
+            <Link
+                to="/"
+                style={{
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    color: "#fff",
+                    textDecoration: "none",
+                }}
+            >
+                Khách sạn Bách Khoa
+            </Link>
 
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarScroll"
-                    aria-controls="navbarScroll"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
+            <Menu
+                mode="horizontal"
+                selectable={false}
+                style={{ flexGrow: 1, marginLeft: 40, fontSize: 16, backgroundColor: "#003b95" }}
+            >
+                {isLoggedIn && userRole === "ROLE_ADMIN" && <RoleAdminMenu />}
+                <Menu.Item key="rooms">
+                    <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                        Tất cả các phòng
+                    </NavLink>
+                </Menu.Item>
+                {isLoggedIn && userRole === "ROLE_GUESS" && <RoleGuessMenu />}
+            </Menu>
 
-                <div className="collapse navbar-collapse" id="navbarScroll">
-                    <ul className="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll">
-                        {isLoggedIn && userRole === "ROLE_ADMIN" && (
-                            <li className="nav-item">
-                                <NavLink className="nav-link" aria-current="page" to={"/admin"} style={{ fontWeight: 500 }}>
-                                    Admin
-                                </NavLink>
-                            </li>
-                        )}
+            <Dropdown overlay={accountMenu} trigger={["click"]} placement="bottom">
+                <Button
+                    type="text"
+                    icon={<UserOutlined />}
+                    onClick={handleMenuClick}
+                    style={{ fontSize: 16, color: "#fff", fontWeight: 600, marginLeft: "auto" }}
+                >
+                    Tài khoản <DownOutlined />
+                </Button>
+            </Dropdown>
+        </Header>
+    );
+};
 
-                        <li className="nav-item">
-                            <NavLink className="nav-link" aria-current="page" to={"/browse-all-rooms"} style={{ fontWeight: 500 }}>
-                                Danh sách phòng
-                            </NavLink>
-                        </li>
-                    </ul>
-
-                    <ul className="d-flex navbar-nav">
-                        <li className="nav-item dropdown">
-                            <a
-                                className={`nav-link dropdown-toggle ${showAccount ? "show" : ""}`}
-                                href="#"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                                onClick={handleAccountClick}
-                                style={{ fontWeight: 500 }}>
-                                {" "}
-                                Account
-                            </a>
-
-                            <ul
-                                className={`dropdown-menu ${showAccount ? "show" : ""}`}
-                                aria-labelledby="navbarDropdown">
-                                {isLoggedIn ? (
-                                    <Logout />
-                                ) : (
-                                    <li>
-                                        <Link className="dropdown-item" to={"/login"} style={{ fontWeight: 500 }}>
-                                            Login
-                                        </Link>
-                                    </li>
-                                )}
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    )
-}
-
-export default NavBar
+export default NavBar;

@@ -2,7 +2,6 @@ import "./App.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "/node_modules/bootstrap/dist/js/bootstrap.min.js";
 import { ToastContainer } from "react-toastify";
-import AddRoom from "./components/room/AddRoom";
 import ExistingRooms from "./components/room/ExistingRooms";
 import Home from "./components/home/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -36,7 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/edit-room" element={<EditRoom />} />
-            <Route path="/add-room" element={<AddRoom />} />
+            <Route path="/add-room" element={<EditRoom />} />
             <Route path="/existing-rooms" element={<ExistingRooms />} />
             <Route path="/browse-all-rooms" element={<RoomListing />} />
             <Route path="/admin" element={<Admin />} />

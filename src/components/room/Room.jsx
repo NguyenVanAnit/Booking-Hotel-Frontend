@@ -7,6 +7,7 @@ import { useLocation } from "react-router-dom";
 import { formatVND } from "../helpers/helpers";
 import { getAllServices } from "../utils/services";
 import { use } from "react";
+import { getSearchAvailableRoom } from "../utils/room";
 // import RoomFilter from "../common/RoomFilter"
 // import RoomPaginator from "../common/RoomPaginator"
 
@@ -24,25 +25,44 @@ const Room = () => {
   });
   const location = useLocation();
   const state = location.state;
-  console.log("state", state);
+  const [popularFilters, setPopularFilters] = useState({
+    highRating: false,
+    twoBeds: false,
+    noAgeLimit: false,
+    highFloor: false,
+  });
+  const [selectedServiceIds, setSelectedServiceIds] = useState([]);
+
+  const handleCheckboxChange = (key) => {
+    setPopularFilters((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const fetchData = async () => {
-    setIsLoading(true);
-    await getAllRooms()
-      .then((data) => {
-        setData(data);
-        setFilteredData(data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setIsLoading(false);
-      });
+    // setIsLoading(true);
+    const request = {
+      checkInDate: state.checkInDate,
+      checkOutDate: state.checkOutDate,
+      numberAdult: state.quantities.adults,
+      numberChildren: state.quantities.children,
+      minPrice: amount.smallLimit,
+      maxPrice: amount.largeLimit,
+      hasHighFloor: popularFilters.highFloor,
+      hasHighRating: popularFilters.highRating,
+      hasTwoOrMoreBeds: popularFilters.twoBeds,
+      serviceIds: selectedServiceIds.join(","),
+    };
+    console.log('request', request);
+    const res = await getSearchAvailableRoom(state);
+    console.log("res", res);
+    // setIsLoading(false);
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [state, amount, popularFilters, selectedServiceIds]);
 
   useEffect(() => {
     fetchServices();
@@ -83,9 +103,7 @@ const Room = () => {
     const endIndex = startIndex + roomsPerPage;
     return filteredData
       .slice(startIndex, endIndex)
-      .map((room) => (
-        <RoomCard room={room} key={room.id} />
-      ));
+      .map((room) => <RoomCard room={room} key={room.id} />);
   };
 
   const marks = {
@@ -98,12 +116,36 @@ const Room = () => {
     },
   };
 
+  // const renderCheckbox = (type) => {
+  //   return allServices
+  //     .filter((service) => service.serviceType === type)
+  //     .map((service) => {
+  //       return (
+  //         <Checkbox key={service.id} value={service.id} >
+  //           {service.name}
+  //         </Checkbox>
+  //       );
+  //     });
+  // };
+  const handleSingleServiceToggle = (serviceId) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(serviceId)
+        ? prev.filter((id) => id !== serviceId)
+        : [...prev, serviceId]
+    );
+  };
+
   const renderCheckbox = (type) => {
     return allServices
       .filter((service) => service.serviceType === type)
       .map((service) => {
         return (
-          <Checkbox key={service.id} value={service.id}>
+          <Checkbox
+            key={service.id}
+            value={service.id}
+            checked={selectedServiceIds.includes(service.id)}
+            onChange={() => handleSingleServiceToggle(service.id)}
+          >
             {service.name}
           </Checkbox>
         );
@@ -269,10 +311,33 @@ const Room = () => {
                 gap: 10,
               }}
             >
-              <Checkbox>Rất tốt: 4 sao trở lên</Checkbox>
-              <Checkbox>Có 2 giường trở lên</Checkbox>
-              <Checkbox>Không giới hạn độ tuổi nhận phòng</Checkbox>
-              <Checkbox>Tầng 15 trở lên</Checkbox>
+              <Checkbox
+                checked={popularFilters.highRating}
+                onChange={() => handleCheckboxChange("highRating")}
+              >
+                Rất tốt: 4 sao trở lên
+              </Checkbox>
+
+              <Checkbox
+                checked={popularFilters.twoBeds}
+                onChange={() => handleCheckboxChange("twoBeds")}
+              >
+                Có 2 giường trở lên
+              </Checkbox>
+
+              <Checkbox
+                checked={popularFilters.noAgeLimit}
+                onChange={() => handleCheckboxChange("noAgeLimit")}
+              >
+                Không giới hạn độ tuổi nhận phòng
+              </Checkbox>
+
+              <Checkbox
+                checked={popularFilters.highFloor}
+                onChange={() => handleCheckboxChange("highFloor")}
+              >
+                Tầng 15 trở lên
+              </Checkbox>
             </div>
           </div>
 

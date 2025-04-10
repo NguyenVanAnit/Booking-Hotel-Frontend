@@ -76,10 +76,17 @@ const ExistingRooms = () => {
       align: "center",
     },
     {
+      title: "Tên phòng",
+      dataIndex: "name",
+      key: "name",
+      width: 220,
+      align: "center",
+    },
+    {
       title: "Loại phòng",
       dataIndex: "roomType",
       key: "roomType",
-      width: 300,
+      width: 200,
       align: "center",
     },
     {

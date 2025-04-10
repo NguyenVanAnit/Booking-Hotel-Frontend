@@ -3,7 +3,7 @@ import BookingForm from "../booking/BookingForm"
 import { WifiOutlined, PlaySquareOutlined, CoffeeOutlined, CarOutlined, TruckOutlined, SkinOutlined, LoadingOutlined } from "@ant-design/icons"
 
 import { useLocation } from "react-router-dom"
-import { getRoomById } from "../utils/ApiFunctions"
+// import { getRoomById } from "../utils/ApiFunctions"
 import RoomCarousel from "../common/RoomCarousel"
 import { Image } from "antd";
 import { formatVND } from "../helpers/helpers"

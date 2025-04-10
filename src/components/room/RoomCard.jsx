@@ -25,17 +25,18 @@ const RoomCard = ({ room }) => {
         style={{
           width: 300,
           backgroundColor: "#CFCFCF",
-          padding: 10,
           borderRadius: 10,
           overflow: "hidden",
         }}
       >
         <Image
-          src={`data:image/png;base64, ${room.photo}`}
+          src={room?.photo1}
           alt="Room Photo"
+          width="100%"
+          height="100%"
           style={{ height: "100%", objectFit: "cover", width: "100%" }}
-          preview={false}
-          onClick={() => navigate("/book-room", { state: room })}
+          preview={true}
+          // onClick={() => navigate("/book-room", { state: room })}
         />
       </div>
       <div style={{ width: "80%", padding: 10 }}>

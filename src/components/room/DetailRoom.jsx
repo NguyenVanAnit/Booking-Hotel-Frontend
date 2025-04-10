@@ -9,6 +9,7 @@ import {
   CloseCircleTwoTone,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import ServiceInRoom from "../service/ServiceInRoom";
 
 const itemButton = [
   {
@@ -57,7 +58,7 @@ const DetailRoom = () => {
   const scrollToSection = (index) => {
     setSelectSection(index);
     window.scrollTo({
-      top: sectionsRefs.current[index].offsetTop - 100, // Cuộn đến vị trí của phần tử
+      top: sectionsRefs.current[index].offsetTop - 120, // Cuộn đến vị trí của phần tử
       behavior: "smooth", // Cuộn mượt mà
     });
   };
@@ -77,6 +78,7 @@ const DetailRoom = () => {
 
   useEffect(() => {
     fetchData();
+    scrollToSection(0); // Cuộn đến phần đầu tiên khi tải trang
   }, []);
 
   const isAvailable = (date) => {
@@ -137,7 +139,7 @@ const DetailRoom = () => {
       <div
         ref={(el) => (sectionsRefs.current[0] = el)}
         style={{
-          height: "500px",
+          height: "600px",
           marginTop: "20px",
         }}
       >
@@ -175,60 +177,138 @@ const DetailRoom = () => {
               padding: 10,
               gap: 10,
               display: "flex",
-              flexDirection: "row",
+              flexDirection: "column",
             }}
           >
             <div
               style={{
-                backgroundColor: "#f0f0f0",
-                height: 300,
-                width: "70%",
-                borderRadius: 10,
+                display: "flex",
+                flexDirection: "row",
+                gap: 10,
+                width: "100%",
               }}
             >
-              <Image
-                src={`data:image/png;base64, ${data?.photo}`}
-                alt="Room Photo"
-                style={{ height: "100%", objectFit: "cover", width: "100%" }}
-                preview={false}
-              />
+              <div
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  maxHeight: 300,
+                  width: "70%",
+                  borderRadius: 10,
+                  overflow: "hidden",
+                }}
+              >
+                <Image
+                  src={data?.photo1}
+                  alt="Room Photo"
+                  width="100%"
+                  height="100%"
+                  style={{ objectFit: "cover", height: "100%", width: "100%" }}
+                  preview={true}
+                />
+              </div>
+              <div
+                style={{
+                  width: "30%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    width: "100%",
+                    height: 145,
+                    borderRadius: 10,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image
+                    src={data?.photo2}
+                    alt="Room Photo"
+                    width="100%"
+                    height="100%"
+                    style={{
+                      objectFit: "cover",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                    preview={true}
+                  />
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    width: "100%",
+                    height: 145,
+                    borderRadius: 10,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image
+                    src={data?.photo3}
+                    alt="Room Photo"
+                    width="100%"
+                    height="100%"
+                    style={{
+                      objectFit: "cover",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                    preview={true}
+                  />
+                </div>
+              </div>
             </div>
             <div
               style={{
-                width: "30%",
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 gap: 10,
               }}
             >
               <div
                 style={{
                   backgroundColor: "#f0f0f0",
-                  width: "100%",
-                  height: "50%",
+                  width: "50%",
+                  height: 150,
                   borderRadius: 10,
+                  overflow: "hidden",
                 }}
               >
                 <Image
-                  src={`data:image/png;base64, ${data?.avatar}`}
+                  src={data?.photo4}
                   alt="Room Photo"
-                  style={{ height: 100, objectFit: "cover", width: "100%" }}
-                  preview={false}
+                  width="100%"
+                  height="100%"
+                  style={{
+                    objectFit: "cover",
+                    height: "100%",
+                    width: "100%",
+                  }}
+                  preview={true}
                 />
               </div>
               <div
                 style={{
                   backgroundColor: "#f0f0f0",
-                  width: "100%",
-                  height: "50%",
+                  width: "50%",
+                  height: 150,
                   borderRadius: 10,
+                  overflow: "hidden",
                 }}
               >
                 <Image
-                  src={`data:image/png;base64, ${data?.avatar}`}
+                  src={data?.photo5}
                   alt="Room Photo"
-                  style={{ height: 100, objectFit: "cover", width: "100%" }}
-                  preview={false}
+                  width="100%"
+                  height="100%"
+                  style={{
+                    objectFit: "cover",
+                    height: "100%",
+                    width: "100%",
+                  }}
+                  preview={true}
                 />
               </div>
             </div>
@@ -335,7 +415,7 @@ const DetailRoom = () => {
         </div>
         <div
           style={{
-            width: "50%",
+            width: "40%",
           }}
         >
           <div></div>
@@ -407,11 +487,12 @@ const DetailRoom = () => {
 
       <div
         ref={(el) => (sectionsRefs.current[2] = el)}
-        style={{ height: "500px", }}
+        style={{ height: "500px" }}
       >
         <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
           Các tiện nghi và dịch vụ
         </div>
+        <ServiceInRoom roomId={roomId} />
       </div>
 
       <div
@@ -422,8 +503,6 @@ const DetailRoom = () => {
           Các chính sách và quy định
         </div>
       </div>
-
-      
 
       <div
         ref={(el) => (sectionsRefs.current[4] = el)}
@@ -457,9 +536,7 @@ const DetailRoom = () => {
           </div>
           <div>Tuyệt vời</div>
         </div>
-        <div>
-
-        </div>
+        <div></div>
       </div>
     </div>
   );
