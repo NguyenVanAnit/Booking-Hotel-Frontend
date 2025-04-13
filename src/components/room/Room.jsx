@@ -8,6 +8,7 @@ import { formatVND } from "../helpers/helpers";
 import { getAllServices } from "../utils/services";
 import { use } from "react";
 import { getSearchAvailableRoom } from "../utils/room";
+import dispatchToast from "../helpers/toast";
 // import RoomFilter from "../common/RoomFilter"
 // import RoomPaginator from "../common/RoomPaginator"
 
@@ -41,23 +42,31 @@ const Room = () => {
   };
 
   const fetchData = async () => {
-    // setIsLoading(true);
+    setIsLoading(true);
     const request = {
-      checkInDate: state.checkInDate,
-      checkOutDate: state.checkOutDate,
-      numberAdult: state.quantities.adults,
-      numberChildren: state.quantities.children,
-      minPrice: amount.smallLimit,
-      maxPrice: amount.largeLimit,
+      checkInDate: state?.checkInDate || "",
+      checkOutDate: state?.checkOutDate || "",
+      numberAdult: state?.quantities.adults || 0,
+      numberChildren: state?.quantities.children || 0,
+      minPrice: amount.smallLimit || 0,
+      maxPrice: amount.largeLimit || 20000000,
       hasHighFloor: popularFilters.highFloor,
       hasHighRating: popularFilters.highRating,
       hasTwoOrMoreBeds: popularFilters.twoBeds,
       serviceIds: selectedServiceIds.join(","),
     };
     console.log('request', request);
-    const res = await getSearchAvailableRoom(state);
+    const res = await getSearchAvailableRoom(request);
     console.log("res", res);
-    // setIsLoading(false);
+    if (res?.success) {
+      setData(res?.data?.data);
+      dispatchToast("success", "Cập nhật danh sách phòng thành công!");
+    }else {
+      dispatchToast("error", "Không tìm thấy phòng nào phù hợp!");
+      setData([]);
+    }
+    
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -80,9 +89,9 @@ const Room = () => {
     }
   };
 
-  if (isLoading) {
-    return <div>Loading rooms.....</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading rooms.....</div>;
+  // }
   if (error) {
     return <div className=" text-danger">Error : {error}</div>;
   }
@@ -90,7 +99,7 @@ const Room = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                              
   const handlePageSizeChange = (current, pageSize) => {
     setRoomsPerPage(pageSize);
     setCurrentPage(1);
@@ -101,7 +110,7 @@ const Room = () => {
   const renderRooms = () => {
     const startIndex = (currentPage - 1) * roomsPerPage;
     const endIndex = startIndex + roomsPerPage;
-    return filteredData
+    return data
       .slice(startIndex, endIndex)
       .map((room) => <RoomCard room={room} key={room.id} />);
   };
@@ -351,7 +360,7 @@ const Room = () => {
             width: "70%",
           }}
         >
-          {renderRooms()}
+          {!isLoading && renderRooms()}
         </div>
       </Row>
       <Pagination

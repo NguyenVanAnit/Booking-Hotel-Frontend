@@ -31,13 +31,20 @@ const putUpdateRoom = async (roomId, roomData) => {
 const getSearchAvailableRoom = async (params) => {
   try {
     const response = await api.get(
-      `/rooms/available-rooms?checkInDate=2025-04-10&checkOutDate=2025-04-12&numberAdult=2&numberChildren=1
-      &serviceIds=1,5&minPrice=0&maxPrice=10000000&hasHighFloor=false&hasHighRating=false&hasTwoOrMoreBeds=true`);
-    return response.data.data.data;
+      `/rooms/available-rooms?checkInDate=${params.checkInDate}&checkOutDate=${params.checkOutDate}&numberAdult=${params.numberAdult}&numberChildren=${params.numberChildren}
+      &serviceIds=${params.serviceIds}&minPrice=${params.minPrice}&maxPrice=${params.maxPrice}&hasHighFloor=${params.hasHighFloor}&hasHighRating=${params.hasHighRating}&hasTwoOrMoreBeds=${params.hasTwoOrMoreBeds}`
+    );
+    return response?.data;
   } catch (error) {
     console.log(error);
     throw new Error("Error searching available room");
   }
 };
 
-export { getDetailRoomById, postAddNewRoom, getRoomById, putUpdateRoom, getSearchAvailableRoom };
+export {
+  getDetailRoomById,
+  postAddNewRoom,
+  getRoomById,
+  putUpdateRoom,
+  getSearchAvailableRoom,
+};

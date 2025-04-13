@@ -1,12 +1,10 @@
 import { Button, Image, Calendar } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { getDetailRoomById } from "../utils/room";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowDownOutlined,
   StarFilled,
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import ServiceInRoom from "../service/ServiceInRoom";
@@ -53,6 +51,7 @@ const DetailRoom = () => {
   const [selectSection, setSelectSection] = useState(0);
   const [data, setData] = useState({});
   const [currentDate, setCurrentDate] = useState(dayjs());
+  const navigate = useNavigate();
 
   // Hàm cuộn đến phần tử mục tiêu
   const scrollToSection = (index) => {
@@ -109,7 +108,7 @@ const DetailRoom = () => {
         margin: "auto",
       }}
     >
-      <div
+      <divdata
         style={{ display: "flex", gap: "10px", borderBottom: "1px solid #ccc" }}
       >
         {/* <button onClick={() => scrollToSection(0)}>Section 1</button>
@@ -133,7 +132,7 @@ const DetailRoom = () => {
             {item.title}
           </Button>
         ))}
-      </div>
+      </divdata>
 
       {/* Các phần mục tiêu */}
       <div
@@ -161,7 +160,7 @@ const DetailRoom = () => {
             {data?.name}
           </div>
           <div>
-            <Button type="primary">Đặt phòng của bạn</Button>
+            <Button type="primary" onClick={() => navigate("/book-room", {state: {record: data}})}>Đặt phòng của bạn</Button>
           </div>
         </div>
         <div

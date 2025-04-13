@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
     const handleLogin = (token) => {
         try {
             const decodedUser = jwtDecode(token); // Sử dụng jwt_decode
+            console.log('decodedUser', decodedUser);
             localStorage.setItem("userId", decodedUser.sub);
             localStorage.setItem("userRole", decodedUser.roles);
             localStorage.setItem("token", token);
