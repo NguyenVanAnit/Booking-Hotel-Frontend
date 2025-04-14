@@ -24,6 +24,9 @@ import ServiceOfRoom from "./components/room/ServicesOfRoom";
 import DetailRoom from "./components/room/DetailRoom";
 import PaymentResult from "./components/booking/Payment";
 import VNPayCallback from "./components/booking/VNPayCallback";
+import StaffList from "./components/staff/staffList";
+import StaffManage from "./components/staff/staffManage";
+import StatisticsHome from "./components/statistics/statistic-main";
 
 
 function App() {
@@ -56,6 +59,9 @@ function App() {
             <Route path="services-of-room" element={<ServiceOfRoom />} />
             <Route path="/payment-result" element={<PaymentResult />} />
             <Route path="/vnpay-callback" element={<VNPayCallback />} />
+            <Route path="/staff" element={<StaffList />} />
+            <Route path="/manage-staff" element={<StaffManage />} />
+            <Route path="/statistics-home" element={<StatisticsHome />} />
           </Routes>
           <Footer />
         </Router>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Layout, Menu, Dropdown, Button } from "antd";
 import { DownOutlined, LoginOutlined, UserOutlined } from "@ant-design/icons";
@@ -7,32 +7,35 @@ import Logout from "../auth/Logout";
 const { Header } = Layout;
 
 const NavBar = () => {
-    const [showAccount, setShowAccount] = useState(false);
-    const isLoggedIn = localStorage.getItem("token");
-    const userRole = localStorage.getItem("userRole");
+    const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("token"));
+    const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
 
     useEffect(() => {
-        if (isLoggedIn && userRole === "ROLE_ADMIN") {
-            setShowAccount(true);
-        } else {
-            setShowAccount(false);
-        }
-    }, [isLoggedIn, userRole]);
+        const syncAuthState = () => {
+            setIsLoggedIn(localStorage.getItem("token"));
+            setUserRole(localStorage.getItem("userRole"));
+        };
 
-    const handleMenuClick = () => {
-        setShowAccount(!showAccount);
+        // Listen for storage changes (other tabs)
+        window.addEventListener("storage", syncAuthState);
+
+        // Listen for custom events (same tab)
+        window.addEventListener("authChanged", syncAuthState);
+
+        return () => {
+            window.removeEventListener("storage", syncAuthState);
+            window.removeEventListener("authChanged", syncAuthState);
+        };
+    }, []);
+
+    const triggerAuthChange = () => {
+        window.dispatchEvent(new Event("authChanged"));
     };
 
     const accountMenu = (
-        <Menu
-            style={{
-                minWidth: 200,
-                fontSize: 16,
-                padding: "0.5rem",
-            }}
-        >
+        <Menu style={{ minWidth: 200, fontSize: 16, padding: "0.5rem" }}>
             {isLoggedIn ? (
-                <Menu.Item key="logout">
+                <Menu.Item key="logout" onClick={triggerAuthChange}>
                     <Logout />
                 </Menu.Item>
             ) : (
@@ -43,29 +46,35 @@ const NavBar = () => {
         </Menu>
     );
 
-    const RoleGuessMenu = (props) => {
-        return (
-            <>
-                <Menu.Item key="history-booking">
-                    <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
-                        Lịch sử đặt phòng
-                    </NavLink>
-                </Menu.Item>
-            </>
-        );
-    };
+    const RoleGuessMenu = () => (
+        <>
+            <Menu.Item key="history-booking">
+                <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Lịch sử đặt phòng
+                </NavLink>
+            </Menu.Item>
+        </>
+    );
 
-    const RoleAdminMenu = (props) => {
-        return (
-            <>
-                <Menu.Item key="admin">
-                    <NavLink to="/admin" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
-                        Quản lý
-                    </NavLink>
-                </Menu.Item>
-            </>
-        );
-    };
+    const RoleAdminMenu = () => (
+        <>
+            <Menu.Item key="admin">
+                <NavLink to="/admin" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quản lý phòng và dịch vụ
+                </NavLink>
+            </Menu.Item>
+            <Menu.Item key="manage-staff">
+                <NavLink to="/manage-staff" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quản lý nhân viên
+                </NavLink>
+            </Menu.Item>
+            <Menu.Item key="statistics-home">
+                <NavLink to="/statistics-home" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Thống kê số liệu
+                </NavLink>
+            </Menu.Item>
+        </>
+    );
 
     return (
         <Header
@@ -107,14 +116,13 @@ const NavBar = () => {
                         Tất cả các phòng
                     </NavLink>
                 </Menu.Item>
-                {isLoggedIn && userRole === "ROLE_GUESS" && <RoleGuessMenu />}
+                {isLoggedIn && userRole === "ROLE_USER" && <RoleGuessMenu />}
             </Menu>
 
             <Dropdown overlay={accountMenu} trigger={["click"]} placement="bottom">
                 <Button
                     type="text"
                     icon={<UserOutlined />}
-                    onClick={handleMenuClick}
                     style={{ fontSize: 16, color: "#fff", fontWeight: 600, marginLeft: "auto" }}
                 >
                     Tài khoản <DownOutlined />
