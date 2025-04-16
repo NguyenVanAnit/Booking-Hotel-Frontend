@@ -5,4 +5,14 @@ const getStaffList = async () => {
     return res?.data;
 }
 
-export { getStaffList };
+const postAddStaff = async (staff) => {
+    const res = await api.post("/staff", staff);
+    return res?.data;
+}
+
+const deleteStaff = async (staffId) => {
+    const res = await api.delete(`/staff/${staffId}`);
+    return res?.data;
+}
+
+export { getStaffList, postAddStaff, deleteStaff };

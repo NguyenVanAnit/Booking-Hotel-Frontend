@@ -24,10 +24,9 @@ import ServiceOfRoom from "./components/room/ServicesOfRoom";
 import DetailRoom from "./components/room/DetailRoom";
 import PaymentResult from "./components/booking/Payment";
 import VNPayCallback from "./components/booking/VNPayCallback";
-import StaffList from "./components/staff/staffList";
-import StaffManage from "./components/staff/staffManage";
-import StatisticsHome from "./components/statistics/statistic-main";
-
+import StatisticsHome from "./components/statistics/StatisticMain";
+import StaffList from "./components/staff/StaffList";
+import StaffManage from "./components/staff/StaffManage";
 
 function App() {
   return (

@@ -1,175 +1,214 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Alert, Popconfirm } from "antd";
+import { Table, Button, Alert, Popconfirm, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { formatVND } from "../helpers/helpers";
 import { getAllServices, deleteService } from "../utils/services";
 import dispatchToast from "../helpers/toast";
 import React from "react";
-import { getStaffList } from "../utils/staff";
+import { deleteStaff, getStaffList } from "../utils/staff";
+import { set } from "date-fns";
 
 const StaffList = () => {
   const [data, setData] = useState([]);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [visibleModal, setVisibleModal] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
-    const response = await getStaffList();
-    const res = response.data.data;
-    console.log('staff', res.data);
-    if (response?.data.success) {
-      setData(res?.data);
-    } else {
-      setData([]);
-      dispatchToast("error", "Lỗi khi tải danh sách dịch vụ");
+    try {
+      const response = await getStaffList();
+      console.log("response", response);
+      if (response?.success) {
+        setData(response?.data?.data);
+      }
+    } catch (error) {
+      dispatchToast("error", "Lỗi khi tải danh sách nhân viên");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const onDeleteService = async (id) => {
-    const response = await deleteService(id);
-    if (response?.data.success) {
-      dispatchToast("success", "Xóa dịch vụ thành công");
-      fetchData();
-    } else {
-      dispatchToast("error", "Xóa dịch vụ thất bại");
+  const onConfirmDelete = async (record) => {
+    setLoading(true);
+    try {
+      const response = await deleteStaff(record.id);
+      if (response?.success) {
+        dispatchToast("success", "Xóa nhân viên thành công");
+        fetchData();
+      } else {
+        dispatchToast("error", "Xóa nhân viên thất bại");
+      }
+    } catch (error) {
+      dispatchToast("error", "Lỗi khi xóa nhân viên");
+    } finally {
+      setLoading(false);
     }
   };
 
   const columns = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
-      align: "center",
-      width: 10,
+      key: "index",
       render: (text, record, index) => index + 1,
+      width: 50,
+      align: "center",
     },
     {
-      title: "Tên dịch vụ",
-      dataIndex: "name",
-      key: "name",
+      title: "Tên nhân viên",
+      dataIndex: "fullName",
+      key: "fullName",
       width: 150,
       align: "center",
     },
     {
-      title: "Giá dịch vụ (*/1)",
-      dataIndex: "priceService",
-      key: "priceService",
-      width: 100,
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+      width: 150,
       align: "center",
-      render: (record) => formatVND(record) + " VNĐ",
     },
     {
-      title: "Trạng thái hoạt động",
-      dataIndex: "active",
-      key: "active",
-      width: 50,
+      title: "Chức vụ",
+      dataIndex: "role",
+      key: "role",
+      width: 150,
       align: "center",
       render: (record) => {
-        return record ? (
-          <Alert message="Đang hoạt động" type="success" />
-        ) : (
-          <Alert message="Dừng hoạt động" type="warning" />
-        );
+        if (record == 0) return "Nhân viên";
+        else if (record == 1) return "Tổ trưởng";
+        else if (record == 2) return "Trưởng phòng";
+        else return "Không xác định";
       },
     },
     {
-      title: "Trạng thái miễn phí",
-      dataIndex: "free",
-      key: "free",
-      width: 50,
+      title: "Phòng ban",
+      dataIndex: "department",
+      key: "department",
+      width: 150,
+      align: "center",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      width: 150,
       align: "center",
       render: (record) => {
-        return record ? (
-          <Alert message="Đang miễn phí" type="success" />
-        ) : (
-          <Alert message="Tính phí" type="info" />
-        );
+        if (record == 1) return "Đang làm việc";
+        else if (record == 2) return "Nghỉ việc";
+        else if (record == 3) return "Bị đuổi việc";
+        else return "Không xác định";
       },
     },
     {
-      title: "Loại dịch vụ",
-      dataIndex: "serviceType",
-      key: "serviceType",
-      width: 100,
-      align: "center",
-    },
-    {
-      title: "Số lượng tối đa",
-      dataIndex: "maxQuantity",
-      key: "maxQuantity",
-      width: 50,
-      align: "center",
-    },
-    {
-      title: "Chức năng",
+      title: "Chi tiết",
       key: "action",
-      width: 100,
       align: "center",
       render: (record) => (
-        <div>
-          <Button
-            type="dashed"
-            onClick={() => {
-              navigate(`/add-service`, { state: { record: record } });
-            }}
-          >
-            <EditOutlined />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <Button type="primary" onClick={() => setVisibleModal(true)}>
+            <EyeOutlined />
           </Button>
-          <Popconfirm
-            title="Xác nhận xóa dịch vụ"
-            description="Có chắc chắn xóa dịch vụ này?"
-            onConfirm={() => onDeleteService(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
+          <Modal
+            title="Thông tin nhân viên"
+            visible={visibleModal}
+            onCancel={() => setVisibleModal(false)}
+            footer={null}
+            width={800}
           >
-            <Button danger style={{ marginLeft: "5%" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ marginBottom: 10 }}>
+                <strong>Tên nhân viên:</strong> {record.fullName}
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong>Số điện thoại:</strong> {record.phoneNumber}
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong>Chức vụ:</strong>{" "}
+                {record.role == 0
+                  ? "Nhân viên"
+                  : record.role == 1
+                  ? "Tổ trưởng"
+                  : record.role == 2
+                  ? "Trưởng phòng"
+                  : "Không xác định"}
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong>Phòng ban:</strong> {record.department}
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <strong>Trạng thái:</strong>{" "}
+                {record.status == 1
+                  ? "Đang làm việc"
+                  : record.status == 2
+                  ? "Nghỉ việc"
+                  : record.status == 3
+                  ? "Bị đuổi việc"
+                  : "Không xác định"}
+              </div>
+            </div>
+          </Modal>
+          <Popconfirm
+            title="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa nhân viên này không?"
+            onConfirm={() => onConfirmDelete(record)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button
+              type="primary"
+              style={{ marginLeft: 10 }}
+              onClick={() => {}}
+            >
               <DeleteOutlined />
             </Button>
           </Popconfirm>
         </div>
       ),
+      width: 70,
     },
   ];
 
   return (
     <div style={{ marginTop: 40 }}>
-      <h2>Danh sách nhân viên</h2>
-      {/* Service list content goes here */}
-      <div style={{ width: "80%", margin: "auto" }}>
-        <Button
-          style={{ float: "right", marginBottom: 10 }}
-          type="primary"
-          icon={<PlusCircleOutlined />}
-          onClick={() => {
-            navigate("/add-service");
-          }}
-        >
-          Thêm nhân viên mới
-        </Button>
-        <Table
-          dataSource={data}
-          columns={columns}
-          pagination={{
-            pageSize: 10
-          }}  
-          loading={loading}
-          rowKey={(record) => record._id}
-          bordered
-          style={{ marginBottom: 50 }}
-          size="small"
-        />
-      </div>
+      <h4
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          fontWeight: 600,
+          marginBottom: 20,
+        }}
+      >
+        Danh sách nhân viên
+      </h4>
+      <Table
+        dataSource={data}
+        columns={columns}
+        pagination={{
+          pageSize: 10,
+        }}
+        loading={loading}
+        rowKey={(record) => record._id}
+        bordered
+        style={{ width: "90%", margin: "auto" }}
+        size="small"
+      />
     </div>
   );
 };
