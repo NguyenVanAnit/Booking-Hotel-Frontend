@@ -15,4 +15,15 @@ const deleteStaff = async (staffId) => {
     return res?.data;
 }
 
-export { getStaffList, postAddStaff, deleteStaff };
+const putUpdateStaff = async (staffId, staff) => {
+    const res = await api.put(`/staff/${staffId}`, staff);
+    return res?.data;
+}
+
+const postChageStatusStaff = async (staffId, params) => {
+    console.log('staffId', staffId, params);
+    const res = await api.post(`/staff/change-status/${staffId}`, params);
+    return res?.data;
+}
+
+export { getStaffList, postAddStaff, deleteStaff, putUpdateStaff, postChageStatusStaff };

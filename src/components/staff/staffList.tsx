@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Alert, Popconfirm, Modal } from "antd";
+import {
+  Table,
+  Button,
+  Alert,
+  Popconfirm,
+  Modal,
+  Descriptions,
+  Tag,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   PlusCircleOutlined,
@@ -7,11 +15,19 @@ import {
   DeleteOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { formatVND } from "../helpers/helpers";
-import { getAllServices, deleteService } from "../utils/services";
+import { formatDate, formatVND } from "../helpers/helpers";
+import {
+  getAllServices,
+  deleteService,
+  putUpdateService,
+} from "../utils/services";
 import dispatchToast from "../helpers/toast";
 import React from "react";
-import { deleteStaff, getStaffList } from "../utils/staff";
+import {
+  deleteStaff,
+  getStaffList,
+  postChageStatusStaff,
+} from "../utils/staff";
 import { set } from "date-fns";
 
 const StaffList = () => {
@@ -23,7 +39,6 @@ const StaffList = () => {
     setLoading(true);
     try {
       const response = await getStaffList();
-      console.log("response", response);
       if (response?.success) {
         setData(response?.data?.data);
       }
@@ -50,6 +65,26 @@ const StaffList = () => {
       }
     } catch (error) {
       dispatchToast("error", "Lỗi khi xóa nhân viên");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeStatus = async (record, status) => {
+    setLoading(true);
+    try {
+      const formData = {
+        status: status,
+      };
+      const response = await postChageStatusStaff(record.id, formData);
+      if (response?.success) {
+        dispatchToast("success", "Nhân viên đã nghỉ việc thành công");
+        fetchData();
+      } else {
+        dispatchToast("error", "Thay đổi trạng thái nhân viên thất bại");
+      }
+    } catch (error) {
+      dispatchToast("error", "Lỗi khi thay đổi trạng thái nhân viên");
     } finally {
       setLoading(false);
     }
@@ -131,38 +166,97 @@ const StaffList = () => {
             visible={visibleModal}
             onCancel={() => setVisibleModal(false)}
             footer={null}
-            width={800}
+            width={1000}
           >
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ marginBottom: 10 }}>
-                <strong>Tên nhân viên:</strong> {record.fullName}
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <strong>Số điện thoại:</strong> {record.phoneNumber}
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <strong>Chức vụ:</strong>{" "}
-                {record.role == 0
+            <Descriptions
+              bordered
+              column={2}
+              size="middle"
+              labelStyle={{ fontWeight: "bold", width: "30%" }}
+            >
+              <Descriptions.Item label="Tên nhân viên" span={2}>
+                {record.fullName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Số điện thoại">
+                {record.phoneNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="Email">
+                {record.email || "Không có"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Giới tính">
+                {record.gender === 1
+                  ? "Nam"
+                  : record.gender === 2
+                  ? "Nữ"
+                  : "Không xác định"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngày sinh">
+                {formatDate(record.birthDate) || "Không có"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Địa chỉ" span={2}>
+                {record.address || "Không có"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Phòng ban">
+                {record.department}
+              </Descriptions.Item>
+              <Descriptions.Item label="Chức vụ">
+                {record.role === 0
                   ? "Nhân viên"
-                  : record.role == 1
+                  : record.role === 1
                   ? "Tổ trưởng"
-                  : record.role == 2
+                  : record.role === 2
                   ? "Trưởng phòng"
                   : "Không xác định"}
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <strong>Phòng ban:</strong> {record.department}
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <strong>Trạng thái:</strong>{" "}
-                {record.status == 1
-                  ? "Đang làm việc"
-                  : record.status == 2
-                  ? "Nghỉ việc"
-                  : record.status == 3
-                  ? "Bị đuổi việc"
-                  : "Không xác định"}
-              </div>
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngày vào làm">
+                {formatDate(record.hireDate) || "Không có"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Lương">
+                {record.salary ? formatVND(record.salary) + " VNĐ" : "Không có"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Trạng thái">
+                {record.status === 1 ? (
+                  <Tag color="green">Đang làm việc</Tag>
+                ) : record.status === 2 ? (
+                  <Tag color="orange">Nghỉ việc</Tag>
+                ) : record.status === 3 ? (
+                  <Tag color="red">Bị đuổi việc</Tag>
+                ) : (
+                  "Không xác định"
+                )}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <Popconfirm
+                title="Xác nhận nhân viên này đã nghỉ việc?"
+                onConfirm={() => changeStatus(record, 2)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button type="primary" style={{ marginTop: 20 }}>
+                  Đã nghỉ việc
+                </Button>
+              </Popconfirm>
+              <Popconfirm
+                title="Xác nhận nhân viên này đã bị đuổi việc?"
+                onConfirm={() => changeStatus(record, 3)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+              >
+                <Button
+                  type="primary"
+                  style={{ marginLeft: 10, marginTop: 20 }}
+                  danger
+                >
+                  Đuổi việc
+                </Button>
+              </Popconfirm>
             </div>
           </Modal>
           <Popconfirm
