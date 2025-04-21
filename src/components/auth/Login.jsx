@@ -14,10 +14,12 @@ const Login = () => {
     const handleSubmit = async (e) => {
         console.log(e)
         const success = await loginUser({ email: e?.email ?? '', password: e?.password ?? "" })
+        console.log('success', success);
         if (success) {
             const token = success.token
             auth.handleLogin(token)
             localStorage.setItem("email", e?.email ?? '')
+            localStorage.setItem("Id", success?.id ?? '')
             navigate(redirectUrl, { replace: true })
         } else {
             setErrorMessage("Invalid username or password. Please try again.")

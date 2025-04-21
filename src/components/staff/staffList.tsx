@@ -26,14 +26,17 @@ import React from "react";
 import {
   deleteStaff,
   getStaffList,
+  getWorkAndAbsenDayInMonth,
   postChageStatusStaff,
 } from "../utils/staff";
 import { set } from "date-fns";
+import StaffManage from "./StaffManage";
 
 const StaffList = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
+  const [abenseData, setAbenseData] = useState([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -89,6 +92,21 @@ const StaffList = () => {
       setLoading(false);
     }
   };
+
+  const openModal = async (record) => {
+    setVisibleModal(true);
+    try {
+      const response = await getWorkAndAbsenDayInMonth(record.id, 4, 2025);
+      if (response?.success) {
+        setAbenseData(response?.data?.data.absentDates);
+      } else {
+        dispatchToast("error", "Lỗi khi tải thông tin nhân viên");
+      }
+    } catch (error) {
+      dispatchToast("error", "Lỗi khi tải thông tin nhân viên");
+    }
+
+  }
 
   const columns = [
     {
@@ -158,7 +176,7 @@ const StaffList = () => {
             flexDirection: "row",
           }}
         >
-          <Button type="primary" onClick={() => setVisibleModal(true)}>
+          <Button type="primary" onClick={() => openModal(record)}>
             <EyeOutlined />
           </Button>
           <Modal
@@ -258,6 +276,49 @@ const StaffList = () => {
                 </Button>
               </Popconfirm>
             </div>
+
+            <div>
+              <h4 style={{ marginTop: 20, fontWeight: "bold" }}>
+                Thông tin ngày đi làm trong tháng
+              </h4>
+              <Table
+                dataSource={abenseData}
+                columns={[
+                  {
+                    title: "STT",
+                    key: "index",
+                    render: (text, record, index) => index + 1,
+                    width: 50,
+                    align: "center",
+                  },
+                  {
+                    title: "Ngày",
+                    key: "date",
+                    width: 150,
+                    align: "center",
+                    render: (record) => {
+                      return formatDate(record);
+                    }
+                  },
+                  {
+                    title: "Trạng thái",
+                    key: "date",
+                    width: 150,
+                    align: "center",
+                    render: (record) => {
+                      return "Cả ngày";
+                    }
+                  },
+                ]}
+                pagination={{
+                  pageSize: 5,
+                }}
+                // loading={loading}
+                rowKey={(record) => record}
+                bordered
+                size="small"
+              />
+            </div>
           </Modal>
           <Popconfirm
             title="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa nhân viên này không?"
@@ -280,7 +341,7 @@ const StaffList = () => {
   ];
 
   return (
-    <div style={{ marginTop: 40 }}>
+    <StaffManage status={0}>
       <h4
         style={{
           textAlign: "center",
@@ -303,7 +364,7 @@ const StaffList = () => {
         style={{ width: "90%", margin: "auto" }}
         size="small"
       />
-    </div>
+    </StaffManage>
   );
 };
 

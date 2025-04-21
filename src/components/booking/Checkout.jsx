@@ -20,6 +20,7 @@ import { postBooking } from "../utils/booking";
 import dispatchToast from "../helpers/toast";
 
 const Checkout = () => {
+  const userId = localStorage.getItem("Id");
   const location = useLocation();
   const room = location?.state?.record;
   const [services, setServices] = useState([]);
@@ -82,7 +83,7 @@ const Checkout = () => {
       numOfChildren: values.numOfChildren,
       phoneNumberOther: values.phoneNumberOther || "",
       roomId: room?.id,
-      userId: 1004,
+      userId: userId,
       serviceBookedRequests: payload,
     }
     console.log("formRequest", formRequest);

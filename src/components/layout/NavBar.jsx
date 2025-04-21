@@ -9,6 +9,7 @@ const { Header } = Layout;
 const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("token"));
     const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
+    console.log('userRole', userRole);
 
     useEffect(() => {
         const syncAuthState = () => {
@@ -49,7 +50,7 @@ const NavBar = () => {
     const RoleGuessMenu = () => (
         <>
             <Menu.Item key="history-booking">
-                <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                <NavLink to="/history-booking" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
                     Lịch sử đặt phòng
                 </NavLink>
             </Menu.Item>
@@ -64,7 +65,7 @@ const NavBar = () => {
                 </NavLink>
             </Menu.Item>
             <Menu.Item key="manage-staff">
-                <NavLink to="/manage-staff" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                <NavLink to="/staff-list" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
                     Quản lý nhân viên
                 </NavLink>
             </Menu.Item>

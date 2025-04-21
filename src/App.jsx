@@ -23,10 +23,14 @@ import AddService from "./components/service/AddService";
 import ServiceOfRoom from "./components/room/ServicesOfRoom";
 import DetailRoom from "./components/room/DetailRoom";
 import PaymentResult from "./components/booking/Payment";
-import VNPayCallback from "./components/booking/VNPayCallback";
 import StatisticsHome from "./components/statistics/StatisticMain";
 import StaffList from "./components/staff/StaffList";
-import StaffManage from "./components/staff/StaffManage";
+import HistoryBooking from "./components/booking/HistoryBooking";
+import VNPayReturn from "./components/booking/Payment";
+import AddStaff from "./components/staff/AddStaff";
+import TimeKeeping from "./components/staff/TimeKeeping";
+import AssignWork from "./components/staff/AssignWork";
+import UserList from "./components/user/UserList";
 
 function App() {
   return (
@@ -57,10 +61,14 @@ function App() {
             <Route path="/add-service" element={<AddService />} />
             <Route path="services-of-room" element={<ServiceOfRoom />} />
             <Route path="/payment-result" element={<PaymentResult />} />
-            <Route path="/vnpay-callback" element={<VNPayCallback />} />
-            <Route path="/staff" element={<StaffList />} />
-            <Route path="/manage-staff" element={<StaffManage />} />
+            <Route path="/staff-list" element={<StaffList />} />
+            <Route path="/add-staff" element={<AddStaff />} />
+            <Route path="/time-keeping" element={<TimeKeeping />} />
             <Route path="/statistics-home" element={<StatisticsHome />} />
+            <Route path="/history-booking" element={<HistoryBooking />} />
+            <Route path="/vnpay-return" element={<VNPayReturn />} />
+            <Route path="/assign-work" element={<AssignWork />} />
+            <Route path="/all-users" element={<UserList />} />
           </Routes>
           <Footer />
         </Router>

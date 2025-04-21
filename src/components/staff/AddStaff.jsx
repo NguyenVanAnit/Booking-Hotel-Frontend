@@ -1,6 +1,7 @@
 import { Button, Col, DatePicker, Form, Input, Row, Select } from "antd";
 import { postAddStaff } from "../utils/staff";
 import dispatchToast from "../helpers/toast";
+import StaffManage from "./StaffManage";
 
 const AddStaff = () => {
   const onFinish = async (values) => {
@@ -24,9 +25,13 @@ const AddStaff = () => {
   };
 
   return (
-    <div
-      style={{ width: "90%", margin: "auto", marginTop: 40, paddingBottom: 40 }}
+    <StaffManage status={1}
     >
+      <div
+        style={{
+          paddingLeft: 40
+        }}>
+
       <h4
         style={{
           textAlign: "center",
@@ -163,7 +168,8 @@ const AddStaff = () => {
           </Button>
         </Form.Item>
       </Form>
-    </div>
+      </div>
+    </StaffManage>
   );
 };
 

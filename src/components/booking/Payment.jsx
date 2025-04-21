@@ -1,31 +1,60 @@
 import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { postPaymentConfirm } from "../utils/booking";
+import { formatVND } from "../helpers/helpers";
 
-const PaymentResult = () => {
+const VNPayReturn = () => {
   const [searchParams] = useSearchParams();
-  const status = searchParams.get("status");
-  const navigate = useNavigate();
+
+  const fetchData = async (params) => {
+    try {
+      const res = await postPaymentConfirm(params);
+      console.log("res", res);
+    } catch (err) {
+      console.error("Lỗi khi xác nhận thanh toán: ", err);
+    }
+  }
 
   useEffect(() => {
-    if (status === "success") {
-      // Chờ 2s rồi chuyển sang trang khác
-      setTimeout(() => {
-        navigate("/booking-detail");
-      }, 2000);
-    } else if (status === "fail") {
-      setTimeout(() => {
-        navigate("/payment-failed");
-      }, 2000);
+    const vnp_ResponseCode = searchParams.get("vnp_ResponseCode");
+    const vnp_Amount = searchParams.get("vnp_Amount");
+    const vnp_OrderInfo = searchParams.get("vnp_OrderInfo");
+    const vnp_TxnRef = searchParams.get("vnp_TxnRef");
+    const vnp_SecureHash = searchParams.get("vnp_SecureHash");
+
+    console.log('object', {
+      vnp_ResponseCode,
+      vnp_Amount: parseInt(vnp_Amount || "0"),
+      vnp_OrderInfo,
+      vnp_TxnRef,
+      vnp_SecureHash,
+    });
+
+    if (vnp_ResponseCode === "00") {
+      console.log("✅ Thanh toán thành công 🎉");
+      // Gọi API xác nhận đơn nếu cần
+      const params = {
+        vnp_TxnRef,
+        vnp_ResponseCode,
+        vnp_SecureHash,
+        
+      }
+      fetchData(params);
+    } else {
+      console.log("❌ Thanh toán thất bại hoặc bị huỷ");
     }
-  }, [status]);
+
+    console.log("Toàn bộ params:", Object.fromEntries(searchParams.entries()));
+  }, [searchParams]);
 
   return (
-    <div style={{ textAlign: "center", paddingTop: 50 }}>
-      {status === "success" && <h2>🎉 Thanh toán thành công! Đang chuyển hướng...</h2>}
-      {status === "fail" && <h2>😢 Thanh toán thất bại! Đang chuyển về trang thanh toán...</h2>}
-      {status === "invalid" && <h2>🚫 Dữ liệu không hợp lệ!</h2>}
+    <div className="p-4">
+      <h1 className="text-xl font-bold">Kết quả thanh toán</h1>
+      <p>Mã giao dịch: {searchParams.get("vnp_TxnRef")}</p>
+      <p>Số tiền: {formatVND(parseInt(searchParams.get("vnp_Amount") || "0") / 100)} VND</p>
+      <p>Trạng thái: {searchParams.get("vnp_ResponseCode") === "00" ? "✅ Thành công" : "❌ Thất bại"}</p>
     </div>
   );
 };
 
-export default PaymentResult;
+export default VNPayReturn;

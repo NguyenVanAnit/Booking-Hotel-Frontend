@@ -98,7 +98,7 @@ const Admin = () => {
                     }}
                 >
                     <Link
-                        to={"/service-list "}
+                        to={"/all-users"}
                         style={{
                             textDecoration: "none",
                             color: "black",
