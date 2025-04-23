@@ -1,5 +1,12 @@
 import { api } from "./ApiFunctions";
 
+const getAllBooking = async (params) => {
+  const res = await api.get(
+    `/bookings/all-bookings?pageNumber=${params?.pageNumber || 0}&pageSize=${params.pageSize || 0}`
+  );
+  return res.data;
+}
+
 const postBooking = async (params) => {
   const res = await api.post(`bookings/room/${params.roomId}/booking`, params);
   return res.data;
@@ -38,6 +45,13 @@ const getAllTotalPriceBookingCount = async (params) => {
   return res.data;
 };
 
+const getBookingsByCheckInDate = async (params) => {
+  const res = await api.get(
+    `/bookings/by-checkin-date?checkInDate=${params.checkInDate}`
+  );
+  return res.data;
+}
+
 export {
   postBooking,
   getHistoryBooking,
@@ -45,4 +59,6 @@ export {
   getMonthlyBookingCount,
   getYearlyBookingCount,
   getAllTotalPriceBookingCount,
+  getAllBooking,
+  getBookingsByCheckInDate
 };

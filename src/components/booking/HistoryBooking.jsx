@@ -6,7 +6,6 @@ import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { postAddRate } from "../utils/rate";
 import dispatchToast from "../helpers/toast";
-import { render } from "react-dom";
 
 const HistoryBooking = () => {
   const [data, setData] = useState([]);

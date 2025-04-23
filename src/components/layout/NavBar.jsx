@@ -77,6 +77,16 @@ const NavBar = () => {
         </>
     );
 
+    const RoleReceptionistMenu = () => (
+        <>
+             <Menu.Item key="existing-bookings">
+                <NavLink to="/existing-bookings" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quản lý phòng và dịch vụ
+                </NavLink>
+            </Menu.Item>
+        </>
+    );
+
     return (
         <Header
             style={{
@@ -112,6 +122,7 @@ const NavBar = () => {
                 style={{ flexGrow: 1, marginLeft: 40, fontSize: 16, backgroundColor: "#003b95" }}
             >
                 {isLoggedIn && userRole === "ROLE_ADMIN" && <RoleAdminMenu />}
+                {isLoggedIn && userRole === "ROLE_RECEPTIONIST" && <RoleReceptionistMenu />}
                 <Menu.Item key="rooms">
                     <NavLink to="/browse-all-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
                         Tất cả các phòng

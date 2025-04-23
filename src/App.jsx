@@ -12,7 +12,7 @@ import RoomListing from "./components/room/RoomListing";
 import Admin from "./components/admin/Admin";
 import Checkout from "./components/booking/Checkout";
 import BookingSuccess from "./components/booking/BookingSuccess";
-import Bookings from "./components/booking/Booking";
+import Bookings from "./components/booking/BookingList";
 import Login from "./components/auth/Login"
 import Registration from "./components/auth/Registration"
 import Profile from "./components/auth/Profile"
