@@ -22,7 +22,7 @@ const StatisticsHome = () => {
             }}
           >
             <Link
-              to={"/staff"}
+              to={"/statistics-room"}
               style={{
                 textDecoration: "none",
                 color: "black",

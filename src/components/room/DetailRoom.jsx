@@ -1,6 +1,6 @@
 import { Button, Image, Calendar } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { getDetailRoomById } from "../utils/room";
+import { getAvailebleDay, getDetailRoomById } from "../utils/room";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowDownOutlined,
@@ -36,13 +36,13 @@ const itemButton = [
   },
 ];
 
-const availableDates = [
-  "2025-04-08",
-  "2025-04-10",
-  "2025-04-12",
-  "2025-05-01",
-  "2025-05-03",
-];
+// const availableDates = [
+//   "2025-04-08",
+//   "2025-04-10",
+//   "2025-04-12",
+//   "2025-05-01",
+//   "2025-05-03",
+// ];
 
 const DetailRoom = () => {
   const location = useLocation();
@@ -52,6 +52,25 @@ const DetailRoom = () => {
   const [data, setData] = useState({});
   const [currentDate, setCurrentDate] = useState(dayjs());
   const navigate = useNavigate();
+  const [availableDates, setAvailableDates] = useState([]);
+
+  const fetchDataAvailableDates = async () => {
+    try {
+      const res = await getAvailebleDay({
+        roomId: roomId,
+        month: 4,
+        year: 2025,
+      });
+      console.log("res adadadw", res?.data.data.data);
+      if (res?.data.success) {
+        setAvailableDates(res?.data.data.data);
+      } else {
+        setAvailableDates([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // Hàm cuộn đến phần tử mục tiêu
   const scrollToSection = (index) => {
@@ -77,7 +96,9 @@ const DetailRoom = () => {
 
   useEffect(() => {
     fetchData();
+    fetchDataAvailableDates();
     scrollToSection(0); // Cuộn đến phần đầu tiên khi tải trang
+
   }, []);
 
   const isAvailable = (date) => {
@@ -504,39 +525,81 @@ const DetailRoom = () => {
       </div>
 
       <div
-        ref={(el) => (sectionsRefs.current[4] = el)}
-        style={{ height: "500px" }}
+  ref={(el) => (sectionsRefs.current[4] = el)}
+  style={{ height: "500px" }}
+>
+  <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
+    Đánh giá của khách
+  </div>
+  <div
+    style={{
+      fontSize: 16,
+      fontWeight: 600,
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      gap: 5,
+      paddingTop: 10,
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: "#003b95",
+        color: "white",
+        padding: "5px 10px",
+        borderRadius: 10,
+      }}
+    >
+      {data?.totalRating ? data?.totalRating : "4.1"}{" "}
+      <StarFilled style={{ color: "#FFFF00" }} />
+    </div>
+    <div>Tuyệt vời</div>
+  </div>
+
+  <div style={{ marginTop: 20 }}>
+    {[ 
+      {
+        name: "Nguyễn Văn A",
+        comment: "Phòng sạch sẽ, view đẹp, nhân viên thân thiện.",
+        rating: 5,
+      },
+      {
+        name: "Trần Thị B",
+        comment: "Vị trí thuận tiện, gần trung tâm. Giá hơi cao xíu.",
+        rating: 4,
+      },
+      {
+        name: "Lê Văn C",
+        comment: "Máy lạnh hơi yếu nhưng tổng thể vẫn ổn.",
+        rating: 3.5,
+      },
+    ].map((review, index) => (
+      <div
+        key={index}
+        style={{
+          marginTop: 15,
+          padding: 10,
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          backgroundColor: "#f9f9f9",
+        }}
       >
-        <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
-          Đánh giá của khách
+        <div style={{ fontWeight: 600 }}>{review.name}</div>
+        <div style={{ fontSize: 14, margin: "5px 0" }}>
+          {review.comment}
         </div>
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            gap: 5,
-            paddingTop: 10,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#003b95",
-              color: "white",
-              padding: "5px 10px",
-              borderRadius: 10,
-            }}
-          >
-            {data?.totalRating ? data?.totalRating : "4.1"}{" "}
-            <StarFilled style={{ color: "#FFFF00" }} />
-          </div>
-          <div>Tuyệt vời</div>
+        <div style={{ color: "#FFD700" }}>
+          {Array.from({ length: Math.floor(review.rating) }).map((_, i) => (
+            <StarFilled key={i} />
+          ))}
+          {review.rating % 1 !== 0 && <StarFilled style={{ opacity: 0.5 }} />}
         </div>
-        <div></div>
       </div>
+    ))}
+  </div>
+</div>
+
     </div>
   );
 };

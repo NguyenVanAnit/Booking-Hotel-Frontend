@@ -31,7 +31,7 @@ const UserList = () => {
   };
 
   useEffect(() => {
-    // fetchData();
+    fetchData();
   }, []);
 
   const onDeleteService = async (id) => {
@@ -54,61 +54,48 @@ const UserList = () => {
       render: (text, record, index) => index + 1,
     },
     {
-      title: "Tên dịch vụ",
-      dataIndex: "name",
+      title: "Họ tên",
       key: "name",
       width: 150,
       align: "center",
-    },
-    {
-      title: "Giá dịch vụ (*/1)",
-      dataIndex: "priceService",
-      key: "priceService",
-      width: 100,
-      align: "center",
-      render: (record) => formatVND(record) + " VNĐ",
-    },
-    {
-      title: "Trạng thái hoạt động",
-      dataIndex: "active",
-      key: "active",
-      width: 50,
-      align: "center",
       render: (record) => {
-        return record ? (
-          <Alert message="Đang hoạt động" type="success" />
-        ) : (
-          <Alert message="Dừng hoạt động" type="warning" />
-        );
-      },
+        const lastname  = record?.lastName || ""
+        const firstname = record?.firstName || ""
+        return `${lastname} ${firstname}`;
+      }
     },
     {
-      title: "Trạng thái miễn phí",
-      dataIndex: "free",
-      key: "free",
-      width: 50,
-      align: "center",
-      render: (record) => {
-        return record ? (
-          <Alert message="Đang miễn phí" type="success" />
-        ) : (
-          <Alert message="Tính phí" type="info" />
-        );
-      },
-    },
-    {
-      title: "Loại dịch vụ",
-      dataIndex: "serviceType",
-      key: "serviceType",
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
       width: 100,
       align: "center",
     },
     {
-      title: "Số lượng tối đa",
-      dataIndex: "maxQuantity",
-      key: "maxQuantity",
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+      width: 100,
+      align: "center",
+    },
+    {
+      title: "Vai trò",
+      dataIndex: "roleId",
+      key: "roleId",
       width: 50,
       align: "center",
+      render: (record) => {
+        switch (Number(record)) {
+          case 1:
+            return <Alert message="Khách hàng" type="success" />;
+          case 2:
+            return <Alert message="Nhân viên lễ tân" type="warning" />;
+          case 3:
+            return <Alert message="Quản lý" type="error" />;
+          default:
+            return "Người dùng";
+        }
+      },
     },
     {
       title: "Chức năng",
@@ -119,16 +106,16 @@ const UserList = () => {
         <div>
           <Button
             type="dashed"
-            onClick={() => {
-              navigate(`/add-service`, { state: { record: record } });
-            }}
+            // onClick={() => {
+            //   navigate(`/add-service`, { state: { record: record } });
+            // }}
           >
             <EditOutlined />
           </Button>
           <Popconfirm
-            title="Xác nhận xóa dịch vụ"
-            description="Có chắc chắn xóa dịch vụ này?"
-            onConfirm={() => onDeleteService(record.id)}
+            title="Xác nhận xóa người dùng"
+            description="Có chắc chắn xóa người dùng này?"
+            // onConfirm={() => onDeleteService(record.id)}
             okText="Xóa"
             cancelText="Hủy"
           >
@@ -154,7 +141,7 @@ const UserList = () => {
             navigate("/add-service");
           }}
         >
-          Thêm dịch vụ
+          Thêm người dùng
         </Button>
         <Table
           dataSource={data}

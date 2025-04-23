@@ -41,10 +41,16 @@ const getSearchAvailableRoom = async (params) => {
   }
 };
 
+const getAvailebleDay = async (params) => {
+  const res = api.get(`/rooms/available-day-in-month?roomId=${params.roomId}&year=${params.year}&month=${params.month}`);
+  return res;
+}
+
 export {
   getDetailRoomById,
   postAddNewRoom,
   getRoomById,
   putUpdateRoom,
   getSearchAvailableRoom,
+  getAvailebleDay,
 };
