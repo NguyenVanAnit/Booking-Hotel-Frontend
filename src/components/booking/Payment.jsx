@@ -175,7 +175,6 @@ const VNPayReturn = () => {
               <Button size="small" type="text" style={{ marginLeft: 10 }}
                 onClick={() => {
                   navigator.clipboard.writeText("123536236222");
-
                 }}
                 icon={<CopyOutlined />}
               />

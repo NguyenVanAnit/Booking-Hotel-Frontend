@@ -1,13 +1,20 @@
-import { Button, Image, Calendar } from "antd";
+import { Button, Image, Calendar, Descriptions } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { getDetailRoomById } from "../utils/room";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowDownOutlined,
+  LogoutOutlined,
   StarFilled,
+  SolutionOutlined,
+  LoginOutlined,
+  TeamOutlined,
+  ExperimentOutlined,
+  LinuxOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import ServiceInRoom from "../service/ServiceInRoom";
+import Policy from "../common/Policy";
 
 const itemButton = [
   {
@@ -111,9 +118,6 @@ const DetailRoom = () => {
       <divdata
         style={{ display: "flex", gap: "10px", borderBottom: "1px solid #ccc" }}
       >
-        {/* <button onClick={() => scrollToSection(0)}>Section 1</button>
-        <button onClick={() => scrollToSection(1)}>Section 2</button>
-        <button onClick={() => scrollToSection(2)}>Section 3</button> */}
         {itemButton.map((item) => (
           <Button
             key={item.id}
@@ -160,7 +164,14 @@ const DetailRoom = () => {
             {data?.name}
           </div>
           <div>
-            <Button type="primary" onClick={() => navigate("/book-room", {state: {record: data}})}>Đặt phòng của bạn</Button>
+            <Button
+              type="primary"
+              onClick={() =>
+                navigate("/book-room", { state: { record: data } })
+              }
+            >
+              Đặt phòng của bạn
+            </Button>
           </div>
         </div>
         <div
@@ -498,9 +509,10 @@ const DetailRoom = () => {
         ref={(el) => (sectionsRefs.current[3] = el)}
         style={{ height: "500px" }}
       >
-        <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
+        <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start", marginBottom: 30 }}>
           Các chính sách và quy định
         </div>
+        <Policy roomId={roomId} />
       </div>
 
       <div
