@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { postPaymentConfirm } from "../utils/booking";
 import { formatVND } from "../helpers/helpers";
@@ -7,11 +7,13 @@ import SuccessIcon from "../../assets/images/success-480.png";
 import ErrorIcon from "../../assets/images/no-480.png";
 import Barcode from "react-barcode";
 import { CopyOutlined } from "@ant-design/icons";
+import html2canvas from "html2canvas";
 
 const VNPayReturn = () => {
   const [searchParams] = useSearchParams();
   const [data, setData] = useState({});
   const [open, setOpen] = useState(false);
+  const invoiceRef = useRef();
 
   const fetchData = async (params) => {
     try {
@@ -56,10 +58,21 @@ const VNPayReturn = () => {
     console.log("Toàn bộ params:", Object.fromEntries(searchParams.entries()));
   }, [searchParams]);
 
+  const handleDownloadInvoice = async () => {
+    const canvas = await html2canvas(invoiceRef.current);
+    const imgData = canvas.toDataURL("image/png");
+  
+    const link = document.createElement("a");
+    link.href = imgData;
+    link.download = "hoa-don-thanh-toan-khach-san-an-an.png";
+    link.click();
+  };
+
   return (
     <div
+      ref={invoiceRef}
       style={{
-        width: 500,
+        width: 550,
         border: "1px solid #ccc",
         padding: 20,
         margin: "30px auto",
@@ -155,11 +168,11 @@ const VNPayReturn = () => {
         </div>
       </div>
       <Divider style={{ width: "100%", border: "2px dashed #DCDCDC " }} />
-      {(searchParams.get("vnp_ResponseCode") === "00") ? (
+      {!(searchParams.get("vnp_ResponseCode") === "00") ? (
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, textAlign: "left" }}>
             Mã đơn:{" "}
-            <span style={{ fontSize: 16, fontWeight: 500 }}>123536236222</span>
+            <span style={{ fontSize: 16, fontWeight: 500 }}>1234567890123</span>
             <Popover
               open={open}
               onOpenChange={(newOpen) => setOpen(newOpen)}
@@ -174,18 +187,22 @@ const VNPayReturn = () => {
             >
               <Button size="small" type="text" style={{ marginLeft: 10 }}
                 onClick={() => {
-                  navigator.clipboard.writeText("123536236222");
+                  navigator.clipboard.writeText("1234567890123");
                 }}
                 icon={<CopyOutlined />}
               />
             </Popover>
           </div>
           <Barcode
-            value="123536236222"
+            value="1234567890123"
             width={3}
             height={100}
-            format="EAN13"
+            // format="EAN13"
+            displayValue={false}
           />
+          <div style={{ marginTop: 20, fontSize: 18 }}>
+            Vui lòng bảo mật và xuất trình hóa đơn này khi nhận phòng <Button type="text" style={{color: "blue"}} onClick={handleDownloadInvoice}>Tải hóa đơn</Button>
+          </div>
         </div>
       ) : (
         <p style={{ marginTop: 50, fontSize: 18 }}>

@@ -11,7 +11,7 @@ const HotelService = () => {
 
                 <Row className="mt-4">
                     <h4 className="text-center">
-                        Dịch vụ nổi tiếng ở Khách sạn <span className="hotel-color"> Bách Khoa </span>
+                        Dịch vụ nổi tiếng ở Khách sạn <span className="hotel-color"> An An </span>
                         <span className="gap-2">
                             {/* <FaClock className="ml-5" />  */}
                             phục vụ bạn 24/7

@@ -18,6 +18,7 @@ import {
     Form,
     Input,
     Tag,
+    Row,
 } from "antd";
 const { RangePicker } = DatePicker;
 import moment from "moment";
@@ -28,13 +29,16 @@ import {
 } from "@ant-design/icons";
 import emailjs from 'emailjs-com';
 import { getBookingsByCheckInDate } from "../utils/booking";
+import { useNavigate } from "react-router-dom";
+import { BarcodeOutlined } from "@ant-design/icons";
 
 const Bookings = () => {
     const [bookingInfo, setBookingInfo] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filteredBookings, setFilteredBookings] = useState(bookingInfo);
     const [dateCheckIn, setDateCheckIn] = useState(moment().format("YYYY-MM-DD"));
-    // const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const navigate = useNavigate();
     // const [detailBookingModal, setDetailBookingModal] = useState(false);
     // const [selectedBooking, setSelectedBooking] = useState(null);
     // const [totalPrice, setTotalPrice] = useState(0);
@@ -329,22 +333,32 @@ const Bookings = () => {
     ];
 
     return (
-        <section style={{ backgroundColor: "whitesmoke", color: "white" }}>
+        <section style={{ backgroundColor: "whitesmoke", color: "white", padding: 30 }}>
             <Header title={"Danh sách đặt phòng"} />
 
-            <DatePicker 
-                title="Chọn ngày nhận phòng (Check-in)"
-                style={{ marginBottom: 20, marginTop: 30, width: 300 }}
-                format="YYYY-MM-DD"
-                placeholder="Chọn ngày nhận phòng (Check-in)"
-                onChange={(date, dateString) => {
-                    if (date) {
-                        setDateCheckIn(dateString); // Đây là string format YYYY-MM-DD
-                    } else {
-                        setDateCheckIn(moment().format("YYYY-MM-DD")); // Nếu không có ngày nào được chọn thì mặc định là ngày hôm nay
-                    }
-                }}
-            />
+            <h5 style={{ textAlign: "left", color: "#000", marginTop: 40}}>Khách đến nhận phòng vào ngày: {dateCheckIn}</h5>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+                <DatePicker 
+                    title="Chọn ngày nhận phòng (Check-in)"
+                    style={{ marginBottom: 20, width: 300 }}
+                    format="YYYY-MM-DD"
+                    placeholder="Chọn ngày nhận phòng (Check-in)"
+                    onChange={(date, dateString) => {
+                        if (date) {
+                            setDateCheckIn(dateString); // Đây là string format YYYY-MM-DD
+                        } else {
+                            setDateCheckIn(moment().format("YYYY-MM-DD")); // Nếu không có ngày nào được chọn thì mặc định là ngày hôm nay
+                        }
+                    }}
+                />
+                <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    onClick={() => setIsModalVisible(true)}
+                >
+                    Tìm kiếm
+                </Button>
+            </div>
 
             <Table
                 dataSource={filteredBookings}
@@ -354,10 +368,51 @@ const Bookings = () => {
                 bordered
                 style={{
                     borderRadius: "10px",
-                    padding: "20px",
                 }}
                 rowKey={(record) => record.bookingId}
             />
+
+            <Modal
+                title="Tìm kiếm đơn đặt phòng"
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                footer={null}
+                width={400}
+            >
+                <Form
+                    layout="vertical"
+                    // onFinish={handleSearch}
+                    style={{ marginTop: 20 }}
+                >
+                    <Form.Item label="Mã đơn đặt phòng" name="bookingConfirmationCode">
+                        <Input placeholder="Nhập mã đơn đặt phòng" />
+                    </Form.Item>
+                    <Form.Item label="Tên người đặt" name="guestFullName">
+                        <Input placeholder="Nhập tên người đặt" />
+                    </Form.Item>
+                    <Form.Item label="Email người đặt" name="guestEmail">
+                        <Input placeholder="Nhập email người đặt" />
+                    </Form.Item>
+                    <Form.Item label="Mã giao dịch thanh toán" name="txnRef">
+                        <Input placeholder="Nhập mã giao dịch thanh toán" />
+                    </Form.Item>
+                    <Row style={{ display: "flex", justifyContent: "space-between" }}>
+                        <Button
+                            type="primary"
+                            icon={<BarcodeOutlined />}
+                            onClick={() => navigate("/search-booking")}
+                            // style={{ marginRight: 10 }}
+                        >
+                            Quét mã hóa đơn
+                        </Button>
+                        <Form.Item style={{ textAlign: "right" }}>
+                            <Button type="primary" htmlType="submit">
+                                Tìm kiếm
+                            </Button>
+                        </Form.Item>
+                    </Row>
+                </Form>
+            </Modal>
         </section>
     );
 };

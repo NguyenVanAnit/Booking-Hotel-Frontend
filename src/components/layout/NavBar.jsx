@@ -79,9 +79,14 @@ const NavBar = () => {
 
     const RoleReceptionistMenu = () => (
         <>
-             <Menu.Item key="existing-bookings">
+            <Menu.Item key="existing-bookings">
                 <NavLink to="/existing-bookings" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
-                    Quản lý phòng và dịch vụ
+                    Quản lý đơn đặt phòng
+                </NavLink>
+            </Menu.Item>
+            <Menu.Item key="search-booking">
+                <NavLink to="/search-booking" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quét mã đặt phòng
                 </NavLink>
             </Menu.Item>
         </>
@@ -113,7 +118,7 @@ const NavBar = () => {
                     textDecoration: "none",
                 }}
             >
-                Khách sạn Bách Khoa
+                Khách sạn An An
             </Link>
 
             <Menu

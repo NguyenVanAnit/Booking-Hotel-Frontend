@@ -72,7 +72,7 @@ function App() {
             <Route path="/all-users" element={<UserList />} />
             <Route path="/statistics-room" element={<StatisticRoom />} />
           </Routes>
-          <Footer />
+          {/* <Footer /> */}
         </Router>
         <ToastContainer/>
       </main>
