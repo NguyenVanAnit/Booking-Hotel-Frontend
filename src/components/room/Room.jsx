@@ -56,17 +56,17 @@ const Room = () => {
       hasTwoOrMoreBeds: popularFilters.twoBeds,
       serviceIds: selectedServiceIds.join(","),
     };
-    console.log('request', request);
+    console.log("request", request);
     const res = await getSearchAvailableRoom(request);
     console.log("res", res);
     if (res?.success) {
       setData(res?.data?.data);
       // dispatchToast("success", "Cập nhật danh sách phòng thành công!");
-    }else {
+    } else {
       // dispatchToast("error", "Không tìm thấy phòng nào phù hợp!");
       setData([]);
     }
-    
+
     setIsLoading(false);
   };
 
@@ -100,7 +100,7 @@ const Room = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
   const handlePageSizeChange = (current, pageSize) => {
     setRoomsPerPage(pageSize);
     setCurrentPage(1);
@@ -198,35 +198,15 @@ const Room = () => {
   return (
     <Container>
       <h1 className="text-center">Danh sách phòng</h1>
-
       <RoomSearch state={state} />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <Pagination
-          showQuickJumper
-          align="center"
-          current={currentPage}
-          pageSize={roomsPerPage} // Kích thước trang hiện tại
-          total={filteredData.length} // Tổng số phòng
-          onChange={handlePageChange} // Thay đổi trang
-          onShowSizeChange={handlePageSizeChange} // Thay đổi kích thước trang
-          showSizeChanger // Hiển thị bộ chọn kích thước trang
-          style={{ margin: "20px 0" }}
-        />
-      </div>
-
+      
       <Row
         style={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
           padding: 10,
+          marginTop: 20
         }}
       >
         <div
@@ -363,6 +343,25 @@ const Room = () => {
             width: "70%",
           }}
         >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+          >
+            <Pagination
+              showQuickJumper
+              align="center"
+              current={currentPage}
+              pageSize={roomsPerPage} // Kích thước trang hiện tại
+              total={filteredData.length} // Tổng số phòng
+              onChange={handlePageChange} // Thay đổi trang
+              onShowSizeChange={handlePageSizeChange} // Thay đổi kích thước trang
+              showSizeChanger // Hiển thị bộ chọn kích thước trang
+              style={{ margin: "20px 0" }}
+            />
+          </div>
           {!isLoading && renderRooms()}
         </div>
       </Row>

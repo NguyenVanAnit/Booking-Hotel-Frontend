@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import moment from "moment";
 // import RoomTypeSelector from "./RoomTypeSelector"
@@ -6,27 +6,35 @@ import { Form, Button, DatePicker, Space, Popover } from "antd";
 const { RangePicker } = DatePicker;
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import dayjs from 'dayjs';
 
 const RoomSearch = ({ state }) => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState({
     adults: 0,
     children: 0,
   });
 
-  console.log("state", state);
+  useEffect(() => {
+    if (state?.quantities) {
+      setQuantities(state.quantities);
+    }
+  }, [state]);
 
-  const handleSearch = (values) => {
-    const checkInDate = moment(values.datestr[0]).format("YYYY-MM-DD");
-    const checkOutDate = moment(values.datestr[1]).format("YYYY-MM-DD");
+  const handleSearch = () => {
+    const formValues = form.getFieldsValue();
+    const checkInDate = dayjs(formValues.datestr[0]).format("YYYY-MM-DD");
+    const checkOutDate = dayjs(formValues.datestr[1]).format("YYYY-MM-DD");
 
-    console.log('checkInDate', checkInDate);
+    console.log("checkInDate", checkInDate, checkOutDate);
 
-    navigate("/browse-all-rooms", { state: { checkInDate, checkOutDate, quantities } });
+    navigate("/browse-all-rooms", {
+      state: { checkInDate, checkOutDate, quantities },
+    });
   };
 
   const disabledDate = (current) => {
-    // Không cho chọn ngày trong quá khứ
     return current && current < moment().endOf("day");
   };
 
@@ -69,8 +77,17 @@ const RoomSearch = ({ state }) => {
   return (
     <>
       <Container className="shadow pt-5 pb-2 mt-2">
-        <h2 className="mb-3">Tìm phòng nhanh chóng</h2>
-        <Form layout="vertical" onFinish={handleSearch}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSearch}
+          initialValues={{
+            datestr:
+              state?.checkInDate && state?.checkOutDate
+                ? [moment(state.checkInDate), moment(state.checkOutDate)]
+                : undefined,
+          }}
+        >
           <Row className="justify-content-center">
             <Col xs={12} md={3}>
               <Form.Item
@@ -82,9 +99,6 @@ const RoomSearch = ({ state }) => {
                     message: "Ngày nhận phòng và trả phòng không được để trống",
                   },
                 ]}
-                initialValues={{
-                  datestr: [state?.checkInDate, state?.checkOutDate],
-                }}
               >
                 <RangePicker format="YYYY-MM-DD" disabledDate={disabledDate} />
               </Form.Item>

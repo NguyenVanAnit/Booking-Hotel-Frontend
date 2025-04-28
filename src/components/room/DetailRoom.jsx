@@ -1,14 +1,17 @@
-import { Button, Image, Calendar } from "antd";
+import { Button, Image, Calendar, Rate, Modal, Divider, Input } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { getAvailebleDay, getDetailRoomById } from "../utils/room";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowDownOutlined,
+  ArrowRightOutlined,
   StarFilled,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import ServiceInRoom from "../service/ServiceInRoom";
 import Policy from "../common/Policy";
+import { descriptionsExample } from "../helpers/descriptions";
+const { TextArea } = Input;
 
 const itemButton = [
   {
@@ -37,13 +40,21 @@ const itemButton = [
   },
 ];
 
-// const availableDates = [
-//   "2025-04-08",
-//   "2025-04-10",
-//   "2025-04-12",
-//   "2025-05-01",
-//   "2025-05-03",
-// ];
+const commentList = [
+  {
+    id: 0,
+    title: "Đánh giá về phòng",
+  },
+  {
+    id: 1,
+    title: "Đánh giá chung về khách sạn",
+  },
+];
+
+function getRandomDescriptions(count = 5) {
+  const shuffled = descriptionsExample.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
 
 const DetailRoom = () => {
   const location = useLocation();
@@ -54,6 +65,10 @@ const DetailRoom = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const navigate = useNavigate();
   const [availableDates, setAvailableDates] = useState([]);
+  const [openComment, setOpenComment] = useState(false);
+  const [selectedComment, setSelectedComment] = useState(0);
+
+  const randomDescriptions = getRandomDescriptions(5);
 
   const fetchDataAvailableDates = async () => {
     try {
@@ -71,7 +86,7 @@ const DetailRoom = () => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   // Hàm cuộn đến phần tử mục tiêu
   const scrollToSection = (index) => {
@@ -99,7 +114,6 @@ const DetailRoom = () => {
     fetchData();
     fetchDataAvailableDates();
     scrollToSection(0); // Cuộn đến phần đầu tiên khi tải trang
-
   }, []);
 
   const isAvailable = (date) => {
@@ -130,7 +144,7 @@ const DetailRoom = () => {
         margin: "auto",
       }}
     >
-      <divdata
+      <div
         style={{ display: "flex", gap: "10px", borderBottom: "1px solid #ccc" }}
       >
         {itemButton.map((item) => (
@@ -151,7 +165,7 @@ const DetailRoom = () => {
             {item.title}
           </Button>
         ))}
-      </divdata>
+      </div>
 
       {/* Các phần mục tiêu */}
       <div
@@ -426,17 +440,10 @@ const DetailRoom = () => {
             width: "40%",
           }}
         >
-          {/* {data?.description} */}
-          Giảm giá Genius tại chỗ nghỉ này tùy thuộc vào ngày đặt phòng, ngày
-          lưu trú và các ưu đãi có sẵn khác. Cung cấp chỗ nghỉ có Wi-Fi miễn
-          phí, điều hòa và TV màn hình phẳng, Luxe Paradise Residence 9 Quang
-          Khanh tọa lạc cách Hồ Tây 3.5 km và Đền Quán Thánh 4.7 km. Tất cả các
-          căn có thiết kế gồm ban công nhìn ra thành phố, bếp với tủ lạnh và lò
-          vi sóng, cùng phòng tắm riêng. Căn hộ có dịch vụ cho thuê xe đạp. Luxe
-          Paradise Residence 9 Quang Khanh cách Lăng Chủ tịch Hồ Chí Minh 4.8
-          km. Sân bay Quốc tế Nội Bài cách 20 km, đồng thời chỗ nghỉ có cung cấp
-          dịch vụ đưa đón sân bay mất phí. Các nhóm khách đặc biệt thích địa
-          điểm này — họ cho điểm 8,6 khi đánh giá chuyến đi theo nhóm.
+          {data?.description}
+          {randomDescriptions.map((desc, index) => (
+            <p key={index}>{desc}</p>
+          ))}
         </div>
         <div
           style={{
@@ -512,7 +519,7 @@ const DetailRoom = () => {
 
       <div
         ref={(el) => (sectionsRefs.current[2] = el)}
-        style={{ height: "500px" }}
+        // style={{ height: "500px" }}
       >
         <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
           Các tiện nghi và dịch vụ
@@ -522,90 +529,332 @@ const DetailRoom = () => {
 
       <div
         ref={(el) => (sectionsRefs.current[3] = el)}
-        style={{ height: "500px" }}
+        // style={{ height: "500px" }}
       >
-        <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start", marginBottom: 30 }}>
+        <div
+          style={{
+            fontSize: 24,
+            fontWeight: 700,
+            textAlign: "start",
+            marginBottom: 30,
+          }}
+        >
           Các chính sách và quy định
         </div>
         <Policy roomId={roomId} />
       </div>
 
       <div
-  ref={(el) => (sectionsRefs.current[4] = el)}
-  style={{ height: "500px" }}
->
-  <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
-    Đánh giá của khách
-  </div>
-  <div
-    style={{
-      fontSize: 16,
-      fontWeight: 600,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      gap: 5,
-      paddingTop: 10,
-    }}
-  >
-    <div
-      style={{
-        backgroundColor: "#003b95",
-        color: "white",
-        padding: "5px 10px",
-        borderRadius: 10,
-      }}
-    >
-      {data?.totalRating ? data?.totalRating : "4.1"}{" "}
-      <StarFilled style={{ color: "#FFFF00" }} />
-    </div>
-    <div>Tuyệt vời</div>
-  </div>
-
-  <div style={{ marginTop: 20 }}>
-    {[ 
-      {
-        name: "Nguyễn Văn A",
-        comment: "Phòng sạch sẽ, view đẹp, nhân viên thân thiện.",
-        rating: 5,
-      },
-      {
-        name: "Trần Thị B",
-        comment: "Vị trí thuận tiện, gần trung tâm. Giá hơi cao xíu.",
-        rating: 4,
-      },
-      {
-        name: "Lê Văn C",
-        comment: "Máy lạnh hơi yếu nhưng tổng thể vẫn ổn.",
-        rating: 3.5,
-      },
-    ].map((review, index) => (
-      <div
-        key={index}
-        style={{
-          marginTop: 15,
-          padding: 10,
-          border: "1px solid #ccc",
-          borderRadius: 8,
-          backgroundColor: "#f9f9f9",
-        }}
+        ref={(el) => (sectionsRefs.current[4] = el)}
+        style={{ marginTop: 30 }}
       >
-        <div style={{ fontWeight: 600 }}>{review.name}</div>
-        <div style={{ fontSize: 14, margin: "5px 0" }}>
-          {review.comment}
+        <div style={{ fontSize: 24, fontWeight: 700, textAlign: "start" }}>
+          Đánh giá của khách
         </div>
-        <div style={{ color: "#FFD700" }}>
-          {Array.from({ length: Math.floor(review.rating) }).map((_, i) => (
-            <StarFilled key={i} />
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 5,
+            paddingTop: 10,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#003b95",
+              color: "white",
+              padding: "5px 10px",
+              borderRadius: 10,
+            }}
+          >
+            {data?.totalRating ? data?.totalRating : "4.1"}{" "}
+            <StarFilled style={{ color: "#FFFF00" }} />
+          </div>
+          <div>Tuyệt vời</div>
+          <Button
+            style={{
+              marginLeft: 20,
+            }}
+            type="link"
+            onClick={() => setOpenComment(true)}
+          >
+            Xem tất cả đánh giá <ArrowRightOutlined />
+          </Button>
+        </div>
+
+        <p
+          style={{
+            textAlign: "left",
+            fontSize: 16,
+            marginTop: 12,
+            fontWeight: 700,
+          }}
+        >
+          Khách lưu trú ở đây thích điều gì?
+        </p>
+
+        <div
+          style={{
+            marginTop: 20,
+            display: "flex",
+            flexDirection: "row",
+            gap: 10,
+            justifyContent: "space-between",
+          }}
+        >
+          {[
+            {
+              fullName: "Nguyễn Văn A",
+              comment: "Phòng sạch sẽ, view đẹp, nhân viên thân thiện.",
+              score: 5,
+              createdAt: "2025-04-01 12:00:00",
+            },
+            {
+              fullName: "Trần Thị B",
+              comment: "Vị trí thuận tiện, gần trung tâm. Giá hơi cao xíu.",
+              score: 4,
+              createdAt: "2025-04-02 14:30:00",
+            },
+            {
+              fullName: "Lê Văn C",
+              comment: "Máy lạnh hơi yếu nhưng tổng thể vẫn ổn.",
+              score: 3.7,
+              createdAt: "2025-04-03 09:15:00",
+            },
+          ].map((review, index) => (
+            <div
+              key={index}
+              style={{
+                padding: 20,
+                border: "1px solid #ccc",
+                borderRadius: 8,
+                backgroundColor: "#f9f9f9",
+                width: "31%",
+                minHeight: 200,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "#003b95",
+                    color: "white",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 20,
+                    fontWeight: 600,
+                  }}
+                >
+                  {review.fullName.charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, textAlign: "left" }}>
+                    {review.fullName}
+                  </div>
+                  <div style={{ fontSize: 12, textAlign: "left" }}>
+                    {review.createdAt}
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginTop: 10,
+                  marginBottom: 10,
+                  justifyContent: "start",
+                }}
+              >
+                <Rate allowHalf defaultValue={review.score} />
+              </div>
+              <div style={{ fontSize: 14, margin: "5px 0", textAlign: "left" }}>
+                {review.comment}
+              </div>
+            </div>
           ))}
-          {review.rating % 1 !== 0 && <StarFilled style={{ opacity: 0.5 }} />}
         </div>
       </div>
-    ))}
-  </div>
-</div>
 
+      <Modal
+        visible={openComment}
+        footer={null}
+        width={800}
+        onCancel={() => setOpenComment(false)}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            borderBottom: "1px solid #ccc",
+            marginBottom: 20,
+          }}
+        >
+          {commentList.map((item) => (
+            <Button
+              key={item.id}
+              onClick={() => setSelectedComment(item.id)}
+              style={{
+                padding: "30px 20px",
+                border: "none",
+                cursor: "pointer",
+                borderBottom:
+                  selectedComment === item.id ? "2px solid blue" : "none",
+                borderRadius: 0,
+                fontSize: 16,
+                fontWeight: 500,
+              }}
+            >
+              {item.title}
+            </Button>
+          ))}
+        </div>
+        {selectedComment == 0 ? (
+          <>
+            <p style={{ fontWeight: 700, fontSize: 18 }}>Đánh giá của khách</p>
+            <div
+            // style={{ maxHeight: 800, overflowY: "auto",  }}
+            >
+              {[
+                {
+                  fullName: "Nguyễn Văn A",
+                  comment: "Phòng sạch sẽ, view đẹp, nhân viên thân thiện.",
+                  score: 5,
+                  createdAt: "2025-04-01 12:00:00",
+                },
+                {
+                  fullName: "Trần Thị B",
+                  comment: "Vị trí thuận tiện, gần trung tâm. Giá hơi cao xíu.",
+                  score: 4,
+                  createdAt: "2025-04-02 14:30:00",
+                },
+                {
+                  fullName: "Lê Văn C",
+                  comment: "Máy lạnh hơi yếu nhưng tổng thể vẫn ổn.",
+                  score: 3.7,
+                  createdAt: "2025-04-03 09:15:00",
+                },
+                {
+                  fullName: "Lê Văn C",
+                  comment: "Máy lạnh hơi yếu nhưng tổng thể vẫn ổn.",
+                  score: 3.7,
+                  createdAt: "2025-04-03 09:15:00",
+                },
+              ].map((review, index) => (
+                <div
+                  key={index}
+                  style={{
+                    padding: 20,
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      alignItems: "start",
+                      justifyContent: "start",
+                      flexDirection: "column",
+                      width: "25%",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        backgroundColor: "#003b95",
+                        color: "white",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 20,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {review.fullName.charAt(0)}
+                    </div>
+                    <div style={{ fontWeight: 600, textAlign: "left" }}>
+                      {review.fullName}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "start",
+                      width: "70%",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <div style={{ fontSize: 14 }}>
+                        Thời gian nhận xét phòng: {review.createdAt}
+                      </div>
+                      <div
+                        style={{
+                          backgroundColor: "#003b95",
+                          color: "white",
+                          padding: "5px 10px",
+                          borderRadius: 10,
+                        }}
+                      >
+                        {review?.score
+                          ? review?.score.toFixed(1).replace(".", ",")
+                          : "4.1"}
+                      </div>
+                    </div>
+                    <div
+                      style={{ fontSize: 14, marginTop: 10, textAlign: "left" }}
+                    >
+                      {review.comment}
+                    </div>
+                    <Divider
+                      style={{ width: "100%", border: "2px dashed #DCDCDC " }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <p style={{ fontWeight: 700, fontSize: 18 }}>Đánh giá về hệ thống trang web</p>
+            <TextArea
+              rows={4}
+              placeholder="Nhập đánh giá của bạn tại đây..."
+              style={{ marginBottom: 20 }}
+            />
+            <div style={{ display: "flex", justifyContent: "end" }}>
+              <Button type="primary">
+                Gửi đánh giá
+              </Button>
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 16 }}>Một số bình luận</p>
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

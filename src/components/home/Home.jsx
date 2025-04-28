@@ -19,6 +19,7 @@ const Home = () => {
       )}
       <MainHeader />
       <div className="container">
+        <h3 style={{ marginTop: 30 }}>Tìm kiếm phòng phù hợp ở đâyyy</h3>
         <RoomSearch />
         <RoomCarousel />
         <Parallax />

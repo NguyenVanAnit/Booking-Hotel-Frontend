@@ -21,13 +21,11 @@ import {
     Row,
     Segmented,
 } from "antd";
-const { RangePicker } = DatePicker;
+// const { RangePicker } = DatePicker;
 import moment from "moment";
 import { formatVND } from "../helpers/helpers";
 import {
     ExclamationCircleOutlined,
-    CheckCircleOutlined,
-    DeleteOutlined,
     SearchOutlined,
     EyeOutlined,
 } from "@ant-design/icons";

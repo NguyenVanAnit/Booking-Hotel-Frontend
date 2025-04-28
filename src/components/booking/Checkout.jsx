@@ -96,7 +96,7 @@ const Checkout = () => {
       console.log('object');
       window.location.href = res?.data?.data; // ← Chuyển hướng
     }else{
-      dispatchToast("error", res?.data?.message || "Đặt phòng thất bại!");
+      dispatchToast("error", res?.message || "Đặt phòng thất bại!");
     }
   };
 
