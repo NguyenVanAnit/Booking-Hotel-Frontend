@@ -19,18 +19,23 @@ import {
     Input,
     Tag,
     Row,
+    Segmented,
 } from "antd";
 const { RangePicker } = DatePicker;
 import moment from "moment";
 import { formatVND } from "../helpers/helpers";
 import {
     ExclamationCircleOutlined,
-    CheckCircleOutlined, DeleteOutlined, SearchOutlined, EyeOutlined
+    CheckCircleOutlined,
+    DeleteOutlined,
+    SearchOutlined,
+    EyeOutlined,
 } from "@ant-design/icons";
-import emailjs from 'emailjs-com';
-import { getBookingsByCheckInDate } from "../utils/booking";
+import emailjs from "emailjs-com";
+import { getBookingsByCheckInDate, updateBookingChecked } from "../utils/booking";
 import { useNavigate } from "react-router-dom";
 import { BarcodeOutlined } from "@ant-design/icons";
+import dispatchToast from "../helpers/toast";
 
 const Bookings = () => {
     const [bookingInfo, setBookingInfo] = useState([]);
@@ -39,6 +44,7 @@ const Bookings = () => {
     const [dateCheckIn, setDateCheckIn] = useState(moment().format("YYYY-MM-DD"));
     const [isModalVisible, setIsModalVisible] = useState(false);
     const navigate = useNavigate();
+    const [isChecked, setIsChecked] = useState(0);
     // const [detailBookingModal, setDetailBookingModal] = useState(false);
     // const [selectedBooking, setSelectedBooking] = useState(null);
     // const [totalPrice, setTotalPrice] = useState(0);
@@ -130,22 +136,26 @@ const Bookings = () => {
     //     }
     // };
 
-    // const handleSearch = (values) => {
-    //     const filteredData = bookingInfo.filter((booking) => {
-    //         const bookingCode = values?.bookingConfirmationCode?.toLowerCase() || "";
-    //         const guestName = values?.guestFullName?.toLowerCase() || "";
-    //         const guestEmail = values?.guestEmail?.toLowerCase() || "";
+    const handleSearch = (values) => {
+        const filteredData = bookingInfo.filter((booking) => {
+            return (
+                (!values.bookingConfirmationCode ||
+                    booking.bookingConfirmationCode.includes(
+                        values.bookingConfirmationCode
+                    )) &&
+                (!values.guestName ||
+                    booking.guestName
+                        .toLowerCase()
+                        .includes(values.guestName.toLowerCase())) &&
+                (!values.email ||
+                    booking.email.toLowerCase().includes(values.email.toLowerCase())) &&
+                (!values.phoneNumber ||
+                    booking.phoneNumber.includes(values.phoneNumber))
+            );
+        });
 
-    //         return (
-    //             booking.bookingConfirmationCode?.toLowerCase().includes(bookingCode) &&
-    //             booking.guestFullName?.toLowerCase().includes(guestName) &&
-    //             booking.guestEmail?.toLowerCase().includes(guestEmail)
-    //         );
-    //     });
-
-    //     setFilteredBookings(filteredData);
-    //     setIsModalVisible(false);
-    // };
+        console.log("filter", filteredData);
+    };
 
     // const openDetailModal = (record) => {
     //     setSelectedBooking(record); // Lưu thông tin đơn đặt phòng
@@ -175,6 +185,20 @@ const Bookings = () => {
     //     const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24); // convert to days
     //     return differenceInDays;
     // };
+
+    const confirmCheckIn = async (bookingId, isChecked) => {
+        const res = await updateBookingChecked(bookingId, isChecked);
+        if (res?.success) {
+            if (isChecked == 1) {
+                dispatchToast("success", "Đã xác nhận nhận phòng thành công!");
+            } else if (isChecked == 2) {
+                dispatchToast("success", "Đã xác nhận trả phòng thành công!");
+            }
+            fetchData();
+        } else {
+            console.error("Có lỗi xảy ra khi xác nhận nhận phòng!");
+        }
+    }
 
     const columns = [
         {
@@ -217,7 +241,8 @@ const Bookings = () => {
             title: "Số người",
             width: 150,
             align: "center",
-            render: (record) => `${record?.numOfAdults} người lớn, ${record?.numOfChildren} trẻ em`,
+            render: (record) =>
+                `${record?.numOfAdults} người lớn, ${record?.numOfChildren} trẻ em`,
         },
         {
             title: "Tổng chi phí",
@@ -225,39 +250,95 @@ const Bookings = () => {
             width: 150,
             align: "center",
             render: (record) => formatVND(record) + " VNĐ",
-        }
-        // {
-        //     title: "Xem chi tiết",
-        //     width: 70,
-        //     align: "center",
-        //     render: (text, record) => {
-        //         // Chuyển mảng thành đối tượng moment
-        //         const date1 = moment([record?.checkOutDate[0], record?.checkOutDate[1] - 1, record?.checkOutDate[2]]);
-        //         const date2 = moment([record?.checkInDate[0], record?.checkInDate[1] - 1, record?.checkInDate[2]]);
-
-        //         // Tính số ngày giữa hai ngày
-        //         const daysDifference = date1.diff(date2, 'days');
-        //         setTotalPrice((Number(record?.room?.roomPrice) * daysDifference));
-
-        //         return (
-        //             <div>
-        //                 <Button
-        //                     primary
-        //                     style={{ marginRight: "5%" }}
-        //                     onClick={() => openDetailModal(record)}
-        //                 >
-        //                     <EyeOutlined />
-        //                 </Button>
-        //             </div>
-        //         );
-        //     },
-        // },
+        },
+        {
+            title: "Khách yêu cầu",
+            key: "isChecked",
+            width: 150,
+            align: "center",
+            render: (record) => {
+                if (record?.isChecked == 0) {
+                    return (
+                        <Popconfirm
+                            title="Xác nhận nhận phòng"
+                            description="Khách đã xác nhận nhận phòng này?"
+                            onConfirm={() => confirmCheckIn(record.bookingId, 1)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                            icon={<ExclamationCircleOutlined style={{ color: "yellow" }} />}
+                            placement="topRight"
+                        >
+                            <Button style={{ fontWeight: "500", fontSize: "14px", color: "#0066FF" }} type="dashed">
+                                Nhận phòng
+                            </Button>
+                        </Popconfirm>
+                    );
+                } else if (record?.isChecked == 1) {
+                    return (
+                        <Popconfirm
+                            title="Xác nhận trả phòng"
+                            description="Khách đã xác nhận trả phòng này?"
+                            onConfirm={() => confirmCheckIn(record.bookingId, 2)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                            icon={<ExclamationCircleOutlined style={{ color: "yellow" }} />}
+                            placement="topRight"
+                        >
+                            <Button style={{ fontWeight: "500", fontSize: "14px", color: "#33CC33	" }} type="dashed">
+                                Trả phòng
+                            </Button>
+                        </Popconfirm>
+                    );
+                } else if (record?.isChecked == 2) {
+                    return (
+                        <Tag
+                            color="success"
+                            style={{ fontWeight: "500", fontSize: "14px" }}
+                        >
+                            Đã trả phòng
+                        </Tag>
+                    );
+                } else {
+                    return (
+                        <Tag
+                            color="warning"
+                            style={{ fontWeight: "500", fontSize: "14px" }}
+                        >
+                            Lỗi
+                        </Tag>
+                    );
+                }
+            },
+        },
+        {
+            title: "Xem chi tiết",
+            width: 70,
+            align: "center",
+            render: (record) => {
+                return (
+                    <Button
+                        type="primary"
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                            // navigate("/booking-detail", {
+                            //     state: { bookingId: record.bookingId },
+                            // });
+                            window.open(
+                                `/booking-detail?bookingId=${record.bookingId}`, 
+                                "_blank", 
+                                "noopener,noreferrer"
+                            );
+                        }}
+                    />
+                )
+            }
+        },
         // {
         //     title: "Duyệt/ Hủy đơn",
         //     width: 150,
         //     align: "center",
         //     render: (record) => {
-        //         if (record?.status == 0) {
+        //         if (record?.isChecked == 0) {
         //             return (
         //                 <div
         //                     style={{
@@ -269,7 +350,7 @@ const Bookings = () => {
         //                     <Popconfirm
         //                         title="Xác nhận duyệt đơn đặt phòng"
         //                         description="Có chắc chắn duyệt đơn đặt phòng này?"
-        //                         onConfirm={() => handleConfirmBooking(record)}
+        //                         // onConfirm={() => handleConfirmBooking(record)}
         //                         okText="Đồng ý"
         //                         cancelText="Hủy"
         //                     >
@@ -281,7 +362,7 @@ const Bookings = () => {
         //                     <Popconfirm
         //                         title="Xác nhận từ chối đơn đặt phòng"
         //                         description="Có chắc chắn từ chối đơn đặt phòng này?"
-        //                         onConfirm={() => handleRejectBooking(record)}
+        //                         // onConfirm={() => handleRejectBooking(record)}
         //                         okText="Đồng ý"
         //                         cancelText="Hủy"
         //                     >
@@ -333,12 +414,22 @@ const Bookings = () => {
     ];
 
     return (
-        <section style={{ backgroundColor: "whitesmoke", color: "white", padding: 30 }}>
+        <section
+            style={{ backgroundColor: "whitesmoke", color: "white", padding: 30 }}
+        >
             <Header title={"Danh sách đặt phòng"} />
 
-            <h5 style={{ textAlign: "left", color: "#000", marginTop: 40}}>Khách đến nhận phòng vào ngày: {dateCheckIn}</h5>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
-                <DatePicker 
+            <h5 style={{ textAlign: "left", color: "#000", marginTop: 40 }}>
+                Khách đến nhận phòng vào ngày: {dateCheckIn}
+            </h5>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 20,
+                }}
+            >
+                <DatePicker
                     title="Chọn ngày nhận phòng (Check-in)"
                     style={{ marginBottom: 20, width: 300 }}
                     format="YYYY-MM-DD"
@@ -351,6 +442,18 @@ const Bookings = () => {
                         }
                     }}
                 />
+                <Segmented
+                    options={[
+                        { label: "Chưa nhận phòng", value: 0 },
+                        { label: "Đã nhận phòng", value: 1 },
+                        { label: "Đã trả phòng", value: 2 },
+                    ]}
+                    defaultValue={isChecked}
+                    onChange={(value) => {
+                        setIsChecked(value);
+                    }}
+                    style={{ backgroundColor: "#99CCFF", marginBottom: 20 }}
+                />
                 <Button
                     type="primary"
                     icon={<SearchOutlined />}
@@ -361,7 +464,9 @@ const Bookings = () => {
             </div>
 
             <Table
-                dataSource={filteredBookings}
+                dataSource={filteredBookings.filter(
+                    (item) => item.isChecked === isChecked
+                )}
                 columns={columns}
                 loading={isLoading}
                 key={filteredBookings.bookingConfirmationCode}
@@ -381,27 +486,27 @@ const Bookings = () => {
             >
                 <Form
                     layout="vertical"
-                    // onFinish={handleSearch}
+                    onFinish={handleSearch}
                     style={{ marginTop: 20 }}
                 >
                     <Form.Item label="Mã đơn đặt phòng" name="bookingConfirmationCode">
                         <Input placeholder="Nhập mã đơn đặt phòng" />
                     </Form.Item>
-                    <Form.Item label="Tên người đặt" name="guestFullName">
+                    <Form.Item label="Tên người đặt" name="guestName">
                         <Input placeholder="Nhập tên người đặt" />
                     </Form.Item>
-                    <Form.Item label="Email người đặt" name="guestEmail">
+                    <Form.Item label="Email người đặt" name="email">
                         <Input placeholder="Nhập email người đặt" />
                     </Form.Item>
-                    <Form.Item label="Mã giao dịch thanh toán" name="txnRef">
-                        <Input placeholder="Nhập mã giao dịch thanh toán" />
+                    <Form.Item label="Số điện thoại" name="phoneNumber">
+                        <Input placeholder="Nhập số điện thoại" />
                     </Form.Item>
                     <Row style={{ display: "flex", justifyContent: "space-between" }}>
                         <Button
                             type="primary"
                             icon={<BarcodeOutlined />}
                             onClick={() => navigate("/search-booking")}
-                            // style={{ marginRight: 10 }}
+                        // style={{ marginRight: 10 }}
                         >
                             Quét mã hóa đơn
                         </Button>

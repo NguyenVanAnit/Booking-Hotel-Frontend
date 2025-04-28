@@ -52,6 +52,21 @@ const getBookingsByCheckInDate = async (params) => {
   return res.data;
 }
 
+const updateBookingChecked = async (bookingId, isChecked) => {
+  const res = await api.put(`/bookings/update-checked/${bookingId}?status=${isChecked}`);
+  return res.data;
+}
+
+const getDetailBookingById = async (bookingId) => {
+  const res = await api.get(`/bookings/detail-booking?bookingId=${bookingId}`);
+  return res.data;
+}
+
+const getBookingIdByCode = async (code) => {
+  const res = await api.get(`bookings/find-by-code?code=${code}`);
+  return res.data;
+}
+
 export {
   postBooking,
   getHistoryBooking,
@@ -60,5 +75,8 @@ export {
   getYearlyBookingCount,
   getAllTotalPriceBookingCount,
   getAllBooking,
-  getBookingsByCheckInDate
+  getBookingsByCheckInDate,
+  updateBookingChecked,
+  getDetailBookingById,
+  getBookingIdByCode
 };

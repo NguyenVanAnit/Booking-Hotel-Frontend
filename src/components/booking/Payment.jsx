@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { postPaymentConfirm } from "../utils/booking";
-import { formatVND } from "../helpers/helpers";
+import { formatDate, formatVND } from "../helpers/helpers";
 import { Button, Divider, Image, Popover } from "antd";
 import SuccessIcon from "../../assets/images/success-480.png";
 import ErrorIcon from "../../assets/images/no-480.png";
@@ -18,8 +18,8 @@ const VNPayReturn = () => {
   const fetchData = async (params) => {
     try {
       const res = await postPaymentConfirm(params);
-      console.log("res", res);
-      if (res?.status) {
+      console.log("res", res?.data?.data);
+      if (res?.success) {
         setData(res?.data?.data);
       }
     } catch (err) {
@@ -27,20 +27,14 @@ const VNPayReturn = () => {
     }
   };
 
+  console.log('dadadadad', data);
+
   useEffect(() => {
     const vnp_ResponseCode = searchParams.get("vnp_ResponseCode");
-    const vnp_Amount = searchParams.get("vnp_Amount");
-    const vnp_OrderInfo = searchParams.get("vnp_OrderInfo");
+    // const vnp_Amount = searchParams.get("vnp_Amount");
+    // const vnp_OrderInfo = searchParams.get("vnp_OrderInfo");
     const vnp_TxnRef = searchParams.get("vnp_TxnRef");
     const vnp_SecureHash = searchParams.get("vnp_SecureHash");
-
-    console.log("object", {
-      vnp_ResponseCode,
-      vnp_Amount: parseInt(vnp_Amount || "0"),
-      vnp_OrderInfo,
-      vnp_TxnRef,
-      vnp_SecureHash,
-    });
 
     if (vnp_ResponseCode === "00") {
       console.log("✅ Thanh toán thành công 🎉");
@@ -80,11 +74,6 @@ const VNPayReturn = () => {
         borderRadius: 16,
       }}
     >
-      {/* <h1 className="text-xl font-bold">Kết quả thanh toán</h1>
-      <p>Mã giao dịch: {searchParams.get("vnp_TxnRef")}</p>
-      <p>Số tiền: {formatVND(parseInt(searchParams.get("vnp_Amount") || "0") / 100)} VND</p>
-      <p>Trạng thái: {searchParams.get("vnp_ResponseCode") === "00" ? "✅ Thành công" : "❌ Thất bại"}</p> */}
-
       {(searchParams.get("vnp_ResponseCode") === "00") ? (
         <div style={{ width: "100%", textAlign: "center" }}>
           <Image
@@ -94,6 +83,7 @@ const VNPayReturn = () => {
             style={{ margin: "0 auto", display: "block" }}
           />
           <h3>Thanh toán thành công</h3>
+          <p>Thời gian đặt đơn: {formatDate(data?.bookingTime)}</p>
         </div>
       ) : (
         <div style={{ width: "100%", textAlign: "center" }}>
@@ -118,13 +108,13 @@ const VNPayReturn = () => {
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Mã giao dịch
           </p>
-          <p style={{ fontSize: 16 }}>3257289743289</p>
+          <p style={{ fontSize: 16 }}>{searchParams.get("vnp_TxnRef")}</p>
         </div>
         <div style={{ width: "50%", textAlign: "end" }}>
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Tổng giao dịch
           </p>
-          <p style={{ fontSize: 16 }}>{formatVND(20000000) + " VNĐ"}</p>
+          <p style={{ fontSize: 16 }}>{formatVND(data?.totalPrice) + " VNĐ"}</p>
         </div>
       </div>
       <div
@@ -138,13 +128,13 @@ const VNPayReturn = () => {
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Phòng
           </p>
-          <p style={{ fontSize: 16 }}>Phòng tiêu chuẩn 102</p>
+          <p style={{ fontSize: 16 }}>{data?.roomName}</p>
         </div>
         <div style={{ width: "50%", textAlign: "end" }}>
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Người đặt
           </p>
-          <p style={{ fontSize: 16 }}>Nguyễn Văn Nguy</p>
+          <p style={{ fontSize: 16 }}>{data?.guestName}</p>
         </div>
       </div>
       <div
@@ -158,21 +148,21 @@ const VNPayReturn = () => {
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Thời gian nhận/trả phòng
           </p>
-          <p style={{ fontSize: 16 }}>24/02/2025, 26/02/2025</p>
+          <p style={{ fontSize: 16 }}>{formatDate(data?.checkInDate) + ", " + formatDate(data?.checkOutDate)}</p>
         </div>
         <div style={{ width: "50%", textAlign: "end" }}>
           <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
             Số lượng người
           </p>
-          <p style={{ fontSize: 16 }}>2 người lớn, 1 trẻ em</p>
+          <p style={{ fontSize: 16 }}>{data?.numOfAdults + " người lớn, " + data?.numOfChildren + " trẻ em"}</p>
         </div>
       </div>
       <Divider style={{ width: "100%", border: "2px dashed #DCDCDC " }} />
-      {!(searchParams.get("vnp_ResponseCode") === "00") ? (
+      {(searchParams.get("vnp_ResponseCode") === "00") ? (
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, textAlign: "left" }}>
             Mã đơn:{" "}
-            <span style={{ fontSize: 16, fontWeight: 500 }}>1234567890123</span>
+            <span style={{ fontSize: 16, fontWeight: 500 }}>{data?.bookingConfirmationCode}</span>
             <Popover
               open={open}
               onOpenChange={(newOpen) => setOpen(newOpen)}
@@ -187,14 +177,14 @@ const VNPayReturn = () => {
             >
               <Button size="small" type="text" style={{ marginLeft: 10 }}
                 onClick={() => {
-                  navigator.clipboard.writeText("1234567890123");
+                  navigator.clipboard.writeText(data?.bookingConfirmationCode);
                 }}
                 icon={<CopyOutlined />}
               />
             </Popover>
           </div>
           <Barcode
-            value="1234567890123"
+            value={data?.bookingConfirmationCode}
             width={3}
             height={100}
             // format="EAN13"

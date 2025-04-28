@@ -9,6 +9,7 @@ import { getAllServices } from "../utils/services";
 import { use } from "react";
 import { getSearchAvailableRoom } from "../utils/room";
 import dispatchToast from "../helpers/toast";
+import RoomSearch from "../common/RoomSearch";
 // import RoomFilter from "../common/RoomFilter"
 // import RoomPaginator from "../common/RoomPaginator"
 
@@ -196,7 +197,9 @@ const Room = () => {
 
   return (
     <Container>
-      <h1 className="text-center my-4">Danh sách phòng</h1>
+      <h1 className="text-center">Danh sách phòng</h1>
+
+      <RoomSearch state={state} />
 
       <div
         style={{

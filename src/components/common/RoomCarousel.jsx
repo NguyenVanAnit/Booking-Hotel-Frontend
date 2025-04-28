@@ -15,7 +15,6 @@ const RoomCarousel = () => {
         setIsLoading(true)
         getAllRooms()
             .then((data) => {
-                console.log('object', data);
                 setRooms(data)
                 setIsLoading(false)
             })

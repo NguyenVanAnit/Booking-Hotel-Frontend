@@ -7,16 +7,20 @@ const { RangePicker } = DatePicker;
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-const RoomSearch = () => {
+const RoomSearch = ({ state }) => {
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState({
     adults: 0,
     children: 0,
   });
 
+  console.log("state", state);
+
   const handleSearch = (values) => {
     const checkInDate = moment(values.datestr[0]).format("YYYY-MM-DD");
     const checkOutDate = moment(values.datestr[1]).format("YYYY-MM-DD");
+
+    console.log('checkInDate', checkInDate);
 
     navigate("/browse-all-rooms", { state: { checkInDate, checkOutDate, quantities } });
   };
@@ -64,7 +68,7 @@ const RoomSearch = () => {
 
   return (
     <>
-      <Container className="shadow mt-5 mb-5 py-5">
+      <Container className="shadow pt-5 pb-2 mt-2">
         <h2 className="mb-3">Tìm phòng nhanh chóng</h2>
         <Form layout="vertical" onFinish={handleSearch}>
           <Row className="justify-content-center">
@@ -78,6 +82,9 @@ const RoomSearch = () => {
                     message: "Ngày nhận phòng và trả phòng không được để trống",
                   },
                 ]}
+                initialValues={{
+                  datestr: [state?.checkInDate, state?.checkOutDate],
+                }}
               >
                 <RangePicker format="YYYY-MM-DD" disabledDate={disabledDate} />
               </Form.Item>

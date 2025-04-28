@@ -32,6 +32,8 @@ import TimeKeeping from "./components/staff/TimeKeeping";
 import AssignWork from "./components/staff/AssignWork";
 import UserList from "./components/user/UserList";
 import StatisticRoom from "./components/statistics/StatisticRoom";
+import BookingDetail from "./components/booking/BookingDetail";
+import SearchBooking from "./components/booking/SearchBooking";
 
 function App() {
   return (
@@ -71,6 +73,8 @@ function App() {
             <Route path="/assign-work" element={<AssignWork />} />
             <Route path="/all-users" element={<UserList />} />
             <Route path="/statistics-room" element={<StatisticRoom />} />
+            <Route path="/booking-detail" element={<BookingDetail />} />
+            <Route path="/search-booking" element={<SearchBooking />} />
           </Routes>
           {/* <Footer /> */}
         </Router>

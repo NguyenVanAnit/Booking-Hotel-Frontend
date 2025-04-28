@@ -1,16 +1,10 @@
-import { Button, Image, Calendar, Descriptions } from "antd";
+import { Button, Image, Calendar } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { getAvailebleDay, getDetailRoomById } from "../utils/room";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowDownOutlined,
-  LogoutOutlined,
   StarFilled,
-  SolutionOutlined,
-  LoginOutlined,
-  TeamOutlined,
-  ExperimentOutlined,
-  LinuxOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import ServiceInRoom from "../service/ServiceInRoom";
