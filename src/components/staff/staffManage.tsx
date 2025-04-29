@@ -92,7 +92,7 @@ const StaffManage = ({ status, children }) => {
                 cursor: "pointer",
                 width: "100%",
               }}
-              onClick={() => navigate("/assign-work")}
+              onClick={() => navigate("/assign-task")}
             >
               <UserOutlined style={{ marginRight: 10 }} /> Giao việc
             </div>

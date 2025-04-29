@@ -10,9 +10,11 @@ import {
   ExperimentOutlined,
 } from "@ant-design/icons";
 import { Descriptions } from "antd";
+import { getDetailRoomById } from "../utils/room";
 
 const Policy = ({ roomId }) => {
   const [data, setData] = useState([]);
+  const [roomData, setRoomData] = useState({});
 
   const fetchData = async () => {
     try {
@@ -27,8 +29,22 @@ const Policy = ({ roomId }) => {
     }
   };
 
+  const fetchDataRoom = async () => {
+      try {
+        const res = await getDetailRoomById(roomId);
+        if (res?.data.success) {
+          setRoomData(res?.data.data.data);
+        } else {
+          setRoomData({});
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
   useEffect(() => {
     fetchData();
+    fetchDataRoom();
   }, []);
 
   return (
@@ -67,7 +83,11 @@ const Policy = ({ roomId }) => {
         span={3}
         style={{ textAlign: "start", fontSize: 16 }}
       >
-        Không giới hạn độ tuổi nhận phòng
+        {
+          roomData?.ageLimit == 0
+            ? "Không giới hạn độ tuổi"
+            : roomData?.ageLimit + " tuổi trở lên"
+        }
       </Descriptions.Item>
       <Descriptions.Item
         label={
@@ -78,7 +98,13 @@ const Policy = ({ roomId }) => {
         }
         span={3}
         style={{ textAlign: "start", fontSize: 16 }}
-      ></Descriptions.Item>
+      >
+        {
+          roomData?.maxNumberChildren == 0
+            ? "Không phù hợp với trẻ em"
+            : "Tối đa " + roomData?.maxNumberChildren + " trẻ"
+        }
+      </Descriptions.Item>
       <Descriptions.Item
         label={
           <div style={{ fontSize: 18, fontWeight: 600 }}>
@@ -89,7 +115,7 @@ const Policy = ({ roomId }) => {
         span={3}
         style={{ textAlign: "start", fontSize: 16 }}
       >
-        Tùy vào yêu cầu của mỗi phòng
+        {data?.some(item => item.id === 30) ? "Cho phép mang vật nuôi" : "Không cho phép mang vật nuôi"}
       </Descriptions.Item>
       <Descriptions.Item
         label={
@@ -101,7 +127,7 @@ const Policy = ({ roomId }) => {
         span={3}
         style={{ textAlign: "start", fontSize: 16 }}
       >
-        Không cho phép tổ chức tiệc tùng hay sự kiện
+        {data?.some(item => item.id === 31) ? "Cho phép tổ chức tiệc" : "Không cho phép tổ chức tiệc"}
       </Descriptions.Item>
     </Descriptions>
   );

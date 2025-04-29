@@ -21,7 +21,11 @@ const HistoryBooking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
-  const showModal = () => {
+  const showModal = (isChecked) => {
+    if (isChecked == 0) {
+      dispatchToast("error", "Bạn chưa nhận phòng tại lễ tân khách sạn!");
+      return;
+    }
     setIsModalOpen(true);
   };
 
@@ -33,23 +37,22 @@ const HistoryBooking = () => {
   const fetchData = async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
-      console.log("object", {
-        pageNumber: page,
-        pageSize: pageSize,
-        userId: userId,
-      });
+      // console.log("object", {
+      //   pageNumber: page,
+      //   pageSize: pageSize,
+      //   userId: userId,
+      // });
       const res = await getHistoryBooking({
         pageNumber: page,
         pageSize: pageSize,
         userId: userId,
       });
-      console.log("res", res);
       setData(res.data.data);
       setPagination((prev) => ({
         ...prev,
         current: page,
         pageSize: pageSize,
-        total: res.data.total,
+        total: res?.data?.totalRecords || 10,
       }));
     } catch (err) {
       console.error("Lỗi khi fetch lịch sử đặt phòng: ", err);
@@ -57,6 +60,8 @@ const HistoryBooking = () => {
       setLoading(false);
     }
   };
+
+  console.log('pagination', pagination);
 
   useEffect(() => {
     fetchData(pagination.current, pagination.pageSize);
@@ -148,7 +153,7 @@ const HistoryBooking = () => {
         if (record?.status == 1)
           return (
             <div>
-              <Button onClick={showModal}>
+              <Button onClick={() => showModal(record?.isChecked)}>
                 <EditOutlined style={{ fontSize: 20 }} />
               </Button>
               <Modal
@@ -213,7 +218,9 @@ const HistoryBooking = () => {
         dataSource={data}
         loading={loading}
         pagination={{
-          pageSize: 10
+          pageSize: 10,
+          total: pagination.total,
+          current: pagination.current,
         }}
         onChange={handleTableChange}
       />

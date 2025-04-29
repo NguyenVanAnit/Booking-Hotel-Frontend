@@ -33,10 +33,10 @@ const StatisticsHome = () => {
                 borderRadius: 8,
               }}
             >
-              <HomeOutlined style={{ marginRight: 10 }} /> Lượng đặt phòng trong tháng
+              <HomeOutlined style={{ marginRight: 10 }} /> Lượng đặt phòng trong tháng và doanh thu của các phòng
             </Link>
             <Link
-              to={"/staff"}
+              to={"/statistics-rate"}
               style={{
                 textDecoration: "none",
                 color: "black",
@@ -49,8 +49,20 @@ const StatisticsHome = () => {
             >
               <UserOutlined style={{ marginRight: 10 }} /> Điểm đánh giá của các phòng
             </Link>
+          </div>
+
+          <div style={{ textAlign: "start" }}>
+          <h4>Thống kê số liệu nhân sự</h4>
+          <div
+            style={{
+              display: "flex",
+              gap: "40px",
+              marginBottom: "20px",
+              marginTop: "20px",
+            }}
+          >
             <Link
-              to={"/staff"}
+              to={"/staff-statistics"}
               style={{
                 textDecoration: "none",
                 color: "black",
@@ -61,8 +73,9 @@ const StatisticsHome = () => {
                 borderRadius: 8,
               }}
             >
-              <UserOutlined style={{ marginRight: 10 }} /> Doanh thu của các phòng
+              <HomeOutlined style={{ marginRight: 10 }} /> Số ngày làm việc của nhân viên và lương
             </Link>
+            </div>
           </div>
         </div>
       </section>

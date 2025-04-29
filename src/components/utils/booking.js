@@ -67,6 +67,11 @@ const getBookingIdByCode = async (code) => {
   return res.data;
 }
 
+const postBookingByReceptionist = async (params) => {
+  const res = await api.post(`bookings/room/${params.roomId}/booking-by-letan`, params);
+  return res.data;
+}
+
 export {
   postBooking,
   getHistoryBooking,
@@ -78,5 +83,6 @@ export {
   getBookingsByCheckInDate,
   updateBookingChecked,
   getDetailBookingById,
-  getBookingIdByCode
+  getBookingIdByCode,
+  postBookingByReceptionist,
 };

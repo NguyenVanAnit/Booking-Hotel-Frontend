@@ -10,8 +10,14 @@ const formatTime = (date) => {
 
 const formatVND = (number) => {
   return Number(number)
+    .toFixed(0) // Làm tròn đến 0 chữ số thập phân
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-export { formatDate, formatTime, formatVND };
+const formatDateArr = (dateArr) => {
+  const [year, month, day] = dateArr;
+  return moment([year, month - 1, day]).format("DD/MM/YYYY");
+};
+
+export { formatDate, formatTime, formatVND, formatDateArr };

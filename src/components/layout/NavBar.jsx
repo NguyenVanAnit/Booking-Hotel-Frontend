@@ -12,26 +12,27 @@ const NavBar = () => {
     console.log('userRole', userRole);
 
     useEffect(() => {
+        // Đồng bộ trạng thái với localStorage
         const syncAuthState = () => {
             setIsLoggedIn(localStorage.getItem("token"));
             setUserRole(localStorage.getItem("userRole"));
         };
-
-        // Listen for storage changes (other tabs)
+    
+        // Lắng nghe sự thay đổi trong localStorage
         window.addEventListener("storage", syncAuthState);
-
-        // Listen for custom events (same tab)
         window.addEventListener("authChanged", syncAuthState);
-
+    
+        // Cleanup event listeners khi component unmount
         return () => {
             window.removeEventListener("storage", syncAuthState);
             window.removeEventListener("authChanged", syncAuthState);
         };
     }, []);
+    
 
     const triggerAuthChange = () => {
         window.dispatchEvent(new Event("authChanged"));
-    };
+    };    
 
     const accountMenu = (
         <Menu style={{ minWidth: 200, fontSize: 16, padding: "0.5rem" }}>
@@ -92,6 +93,21 @@ const NavBar = () => {
         </>
     );
 
+    const RoleHRMenu = () => (
+        <>
+            <Menu.Item key="hr">
+                <NavLink to="/staff-list" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quản lý nhân sự
+                </NavLink>
+            </Menu.Item>
+            <Menu.Item key="hr-room">
+                <NavLink to="/existing-rooms" style={{ textDecoration: "none", color: "#fff", fontWeight: 600 }}>
+                    Quản lý phòng
+                </NavLink>
+            </Menu.Item>
+        </>
+    );
+
     return (
         <Header
             style={{
@@ -134,6 +150,7 @@ const NavBar = () => {
                     </NavLink>
                 </Menu.Item>
                 {isLoggedIn && userRole === "ROLE_USER" && <RoleGuessMenu />}
+                {isLoggedIn && userRole === "ROLE_HR" && <RoleHRMenu />}
             </Menu>
 
             <Dropdown overlay={accountMenu} trigger={["click"]} placement="bottom">

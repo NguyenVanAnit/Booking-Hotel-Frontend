@@ -109,7 +109,7 @@ const Admin = () => {
                             borderRadius: 8,
                         }}
                     >
-                        <UserAddOutlined style={{ marginRight: 10 }} /> Danh sách người dùng
+                        <UserAddOutlined style={{ marginRight: 10 }} /> Danh sách tài khoản
                     </Link>
                 </div>
             </div>

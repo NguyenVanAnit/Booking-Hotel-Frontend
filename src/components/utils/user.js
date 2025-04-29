@@ -5,4 +5,9 @@ const getAllUsers = async () => {
   return api.get("/users");
 };
 
-export { getAllUsers}
+const getUserByEmail = async (email) => {
+  const res = await api.get(`/users/${email}`);
+  return res?.data;
+};
+
+export { getAllUsers, getUserByEmail };

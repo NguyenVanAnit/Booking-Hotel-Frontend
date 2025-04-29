@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { getAllRooms, deleteRoom, getRoomTypes } from "../utils/ApiFunctions";
 import { Button, Table, Popconfirm, Select } from "antd";
-import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+  TagsOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { formatVND } from "../helpers/helpers";
 
@@ -13,6 +18,7 @@ const ExistingRooms = () => {
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [selecterdRoomType, setSelecterdRoomType] = useState("");
   const navigate = useNavigate();
+  const roleHR = localStorage.getItem("userRole");
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -29,7 +35,7 @@ const ExistingRooms = () => {
   const fetchRoomTypes = async () => {
     const response = await getRoomTypes();
     setListRoomTypes(response);
-  }
+  };
 
   useEffect(() => {
     fetchData();
@@ -43,7 +49,7 @@ const ExistingRooms = () => {
       const filteredRooms = rooms.filter((room) =>
         room.roomType.includes(selecterdRoomType)
       );
-      console.log(filteredRooms)
+      console.log(filteredRooms);
       setFilteredRooms(filteredRooms);
     }
     setCurrentPage(1);
@@ -98,20 +104,45 @@ const ExistingRooms = () => {
       render: (text) => <span>{formatVND(text)} VNĐ</span>,
     },
     {
+      title: "Công việc",
+      key: "work",
+      align: "center",
+      width: 100,
+      render: (record) => (
+        <Button
+          onClick={() =>
+            navigate("/room-task", {
+              state: {
+                roomId: record.id,
+                roomName: record.name,
+              },
+            })
+          }
+        >
+          <TagsOutlined />
+        </Button>
+      ),
+    },
+    {
       title: "Dịch vụ",
       width: 50,
+      key: "services",
       align: "center",
       render: (record) => {
         return (
           <Button
             color="primary"
             variant="outlined"
-            onClick={() => navigate("/services-of-room", { state: { id: record?.id, name: record?.name } })}
+            onClick={() =>
+              navigate("/services-of-room", {
+                state: { id: record?.id, name: record?.name },
+              })
+            }
           >
             Xem dịch vụ
           </Button>
-        )
-      }
+        );
+      },
     },
     {
       title: "Chức năng",
@@ -146,9 +177,9 @@ const ExistingRooms = () => {
 
   return (
     <div style={{ padding: "40px" }}>
-      <h2 style={{ marginBottom: '30px' }}>Danh sách phòng </h2>
+      <h2 style={{ marginBottom: "30px" }}>Danh sách phòng</h2>
 
-      <div style={{ paddingBottom: '20px' }}    >
+      <div style={{ paddingBottom: "20px" }}>
         <Select
           // defaultValue="lucy"
           style={{
@@ -162,37 +193,43 @@ const ExistingRooms = () => {
           placeholder="Tìm kiếm loại phòng"
           onChange={(value) => {
             console.log(value);
-            setSelecterdRoomType(value)
+            setSelecterdRoomType(value);
           }}
         />
       </div>
 
-      <Button 
+      {
+        roleHR === "ROLE_ADMIN" &&
+        <Button
         onClick={() => navigate("/edit-room", { state: { id: null } })}
         style={{ float: "right", marginBottom: "20px" }}
         type="primary"
         icon={<PlusCircleOutlined />}
-        >
-          Thêm phòng
-          </Button>
+      >
+        Thêm phòng
+      </Button>}
 
       <Table
-        columns={columns}
+        columns={roleHR === "ROLE_HR"
+          ? columns.filter(
+              (col) => col.key !== "services" && col.key !== "action"
+            )
+          : columns}
         dataSource={filteredRooms}
         loading={isLoading}
         bordered
         size="small"
         rowKey={(record) => record.id}
-      // pagination={{
-      //   current: currentPage,
-      //   pageSize: roomsPerPage,
-      //   total: filteredRooms.length,
-      //   showTotal: (total) => `Total ${total} rooms`,
-      //   onChange: (page, pageSize) => {
-      //     setCurrentPage(page);
-      //     setRoomsPerPage(pageSize);
-      //   },
-      // }}
+        // pagination={{
+        //   current: currentPage,
+        //   pageSize: roomsPerPage,
+        //   total: filteredRooms.length,
+        //   showTotal: (total) => `Total ${total} rooms`,
+        //   onChange: (page, pageSize) => {
+        //     setCurrentPage(page);
+        //     setRoomsPerPage(pageSize);
+        //   },
+        // }}
       />
     </div>
   );

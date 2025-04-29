@@ -53,6 +53,13 @@ const getWorkAndAbsenDayInMonth = async (staffId, month, year) => {
   return res?.data;
 }
 
+const getAbbentDayInMonth = async ( month, year) => {
+  const res = await api.get(
+    `/attendance/summary?month=${month}&year=${year}`
+  );
+  return res?.data;
+}
+
 export {
   getStaffList,
   postAddStaff,
@@ -63,5 +70,6 @@ export {
   postCheckoutStaff,
   getStaffCheckinDay,
   getStaffCheckoutDay,
-  getWorkAndAbsenDayInMonth
+  getWorkAndAbsenDayInMonth,
+  getAbbentDayInMonth
 };

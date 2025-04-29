@@ -16,11 +16,14 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getServicesByRoomId } from "../utils/services";
 import { formatVND } from "../helpers/helpers";
-import { postBooking } from "../utils/booking";
+import { postBooking, postBookingByReceptionist } from "../utils/booking";
 import dispatchToast from "../helpers/toast";
+import { getUserByEmail } from "../utils/user";
 
 const Checkout = () => {
   const userId = localStorage.getItem("Id");
+  const email = localStorage.getItem("email");
+  const roleLetan = localStorage.getItem("userRole");
   const location = useLocation();
   const room = location?.state?.record;
   const [services, setServices] = useState([]);
@@ -38,6 +41,8 @@ const Checkout = () => {
   const currentEmail = localStorage.getItem("email") || "";
   const currentId = localStorage.getItem("userId") || "";
   const [disabledSubmit, setDisabledSubmit] = useState(false);
+  const [numberOfNights, setNumberOfNights] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const fetchData = async () => {
     try {
@@ -52,8 +57,31 @@ const Checkout = () => {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const res = await getUserByEmail(email);
+      if (res?.success) {
+        const data = res?.data?.data;
+        setFormData((prev) => ({
+          ...prev,
+          fullName: res?.data?.data?.fullName || "",
+          phoneNumber: res?.data?.data?.phoneNumber || "",
+        }));
+
+        form.setFieldsValue({
+          fullName: data?.fullName || "",
+          phoneNumber: data?.phoneNumber || "",
+          email: email,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -66,38 +94,80 @@ const Checkout = () => {
 
   const handleServiceChange = (checkedValues) => {
     setSelectedServices(checkedValues);
+    form
+      .validateFields()
+      .then((values) => {
+        calculateTotalPrice(values);
+      })
+      .catch(() => {});
   };
 
   const onSubmit = async (values) => {
-    setDisabledSubmit(true);
-    const payload = selectedServices.map((serviceId) => ({
-      serviceId,
-      quantity: values.serviceQuantities?.[serviceId] || 1,
-    }));
+    try {
+      setDisabledSubmit(true);
+      const payload = selectedServices.map((serviceId) => ({
+        serviceId,
+        quantity: values.serviceQuantities?.[serviceId] || 1,
+      }));
 
-    const formRequest = {
-      checkInDate: values.checkin_checkout[0].format("YYYY-MM-DD"),
-      checkOutDate: values.checkin_checkout[1].format("YYYY-MM-DD"),
-      guestEmail: currentEmail,
-      numOfAdults: values.numOfAdults,
-      numOfChildren: values.numOfChildren,
-      phoneNumberOther: values.phoneNumberOther || "",
-      roomId: room?.id,
-      userId: userId,
-      serviceBookedRequests: payload,
+      const formRequest = {
+        checkInDate: values.checkin_checkout[0].format("YYYY-MM-DD"),
+        checkOutDate: values.checkin_checkout[1].format("YYYY-MM-DD"),
+        guestEmail: currentEmail,
+        numOfAdults: values.numOfAdults,
+        numOfChildren: values.numOfChildren,
+        phoneNumberOther: values.phoneNumberOther || "",
+        roomId: room?.id,
+        userId: userId,
+        serviceBookedRequests: payload,
+      };
+      console.log("formRequest", formRequest);
+
+      const res =
+        roleLetan == "ROLE_RECEPTIONIST"
+          ? await postBookingByReceptionist(formRequest)
+          : await postBooking(formRequest);
+      setDisabledSubmit(false);
+
+      if (res?.success) {
+        if (roleLetan == "ROLE_RECEPTIONIST") {
+          dispatchToast("success", "Lễ tân đặt phòng thành công!");
+        } else {
+        window.location.href = res?.data?.data; // ← Chuyển hướng
+        }
+      } else {
+        dispatchToast("error", res?.message || "Đặt phòng thất bại!");
+      }
+    } catch (error) {
+      setDisabledSubmit(false);
+      dispatchToast(
+        "error",
+        error?.response?.data?.message || "Đặt phòng thất bại!"
+      );
     }
-    console.log("formRequest", formRequest);
+  };
 
-    const res = await postBooking(formRequest);
-    console.log('resres', res);
-    setDisabledSubmit(false);
+  console.log("formData", formData);
 
-    if (res?.success) {
-      console.log('object');
-      window.location.href = res?.data?.data; // ← Chuyển hướng
-    }else{
-      dispatchToast("error", res?.message || "Đặt phòng thất bại!");
+  const calculateTotalPrice = (values) => {
+    let roomPrice = room?.roomPrice || 0;
+    let nights = numberOfNights || 0;
+
+    let roomTotal = roomPrice * nights;
+
+    let servicesTotal = 0;
+    if (values?.serviceQuantities) {
+      for (let serviceId of selectedServices) {
+        const quantity = values.serviceQuantities[serviceId] || 1;
+        const service = services.find((s) => s.id === serviceId);
+        if (service) {
+          servicesTotal += service.priceService * quantity;
+        }
+      }
     }
+
+    const total = roomTotal + servicesTotal;
+    setTotalPrice(total);
   };
 
   return (
@@ -122,19 +192,27 @@ const Checkout = () => {
               </div>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item label="Họ và tên" name="fullName">
+                  <Form.Item
+                    label="Họ và tên"
+                    name="fullName"
+                    initialValue={formData.fullName}
+                  >
                     <Input placeholder="Họ và tên" disabled />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="Số điện thoại" name="phoneNumber">
+                  <Form.Item
+                    label="Số điện thoại"
+                    name="phoneNumber"
+                    initialValue={formData.phoneNumber}
+                  >
                     <Input placeholder="Số điện thoại" disabled />
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item label="Email" name="email">
+                  <Form.Item label="Email" name="email" initialValue={email}>
                     <Input placeholder="Email" disabled />
                   </Form.Item>
                 </Col>
@@ -184,8 +262,23 @@ const Checkout = () => {
                   placeholder={["Ngày nhận phòng", "Ngày trả phòng"]}
                   disabledDate={(current) => current && current < Date.now()}
                   onChange={(dates, dateStrings) => {
-                    console.log("Selected dates:", dates);
-                    console.log("Formatted dates:", dateStrings);
+                    if (dates && dates.length === 2) {
+                      const checkInDate = dates[0];
+                      const checkOutDate = dates[1];
+                      const nights = checkOutDate.diff(checkInDate, "days");
+                      setNumberOfNights(nights);
+
+                      // Khi chọn ngày mới thì tính lại tổng tiền
+                      form
+                        .validateFields()
+                        .then((values) => {
+                          calculateTotalPrice(values);
+                        })
+                        .catch(() => {});
+                    } else {
+                      setNumberOfNights(0);
+                      setTotalPrice(0);
+                    }
                   }}
                 />
               </Form.Item>
@@ -211,6 +304,12 @@ const Checkout = () => {
                           ...prev,
                           numOfAdults: value,
                         }));
+                        form
+                          .validateFields()
+                          .then((values) => {
+                            calculateTotalPrice(values);
+                          })
+                          .catch(() => {});
                       }}
                     />
                   </Form.Item>
@@ -390,11 +489,15 @@ const Checkout = () => {
                   <p>
                     <b>Tổng thanh toán:</b>{" "}
                     <span style={{ color: "red", fontSize: 18 }}>
-                      {/* {formatVND(totalPrice)} */}
+                      {formatVND(totalPrice)}
                     </span>
                   </p>
                   <Form.Item>
-                    <Button type="primary" htmlType="submit" disabled={disabledSubmit}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      disabled={disabledSubmit}
+                    >
                       Xác nhận đặt phòng
                     </Button>
                   </Form.Item>

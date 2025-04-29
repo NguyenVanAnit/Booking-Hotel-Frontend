@@ -31,12 +31,15 @@ import {
 } from "../utils/staff";
 import { set } from "date-fns";
 import StaffManage from "./StaffManage";
+import { width } from "@mui/system";
+import { render } from "react-dom";
 
 const StaffList = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleModal, setVisibleModal] = useState(false);
   const [abenseData, setAbenseData] = useState([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     setLoading(true);
@@ -338,6 +341,29 @@ const StaffList = () => {
       ),
       width: 70,
     },
+    {
+      title: "Công việc",
+      key: "work",
+      align: "center",
+      width: 70,
+      render: (record) => {
+        return (
+            <Button
+              type="primary"
+              onClick={() => {
+                navigate("/staff-task", {
+                  state: {
+                    staffId: record.id,
+                    staffName: record.fullName,
+                  },
+                });
+              }}
+            >
+              <EditOutlined />
+            </Button>
+        )
+      }
+    }
   ];
 
   return (

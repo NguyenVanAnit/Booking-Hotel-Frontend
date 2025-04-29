@@ -55,14 +55,10 @@ const UserList = () => {
     },
     {
       title: "Họ tên",
-      key: "name",
+      dataIndex: "fullName",
+      key: "fullName",
       width: 150,
       align: "center",
-      render: (record) => {
-        const lastname  = record?.lastName || ""
-        const firstname = record?.firstName || ""
-        return `${lastname} ${firstname}`;
-      }
     },
     {
       title: "Email",
@@ -130,7 +126,7 @@ const UserList = () => {
 
   return (
     <div style={{ marginTop: 40 }}>
-      <h2>Danh sách người dùng</h2>
+      <h2>Danh sách tài khoản</h2>
       {/* Service list content goes here */}
       <div style={{ width: "80%", margin: "auto" }}>
         <Button

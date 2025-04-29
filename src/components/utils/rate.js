@@ -6,4 +6,9 @@ const postAddRate = async (params) => {
   return res?.data;
 };
 
-export { postAddRate }
+const getRateByRoomId = async (params) => {
+  const res = await api.get(`/rate/get-by-room-id?roomId=${params.roomId}&pageNumber=${params.pageNumber}&pageSize=${params.pageSize}`);
+  return res?.data;
+};
+
+export { postAddRate, getRateByRoomId }

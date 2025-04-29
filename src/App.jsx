@@ -7,7 +7,7 @@ import Home from "./components/home/Home";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import EditRoom from "./components/room/EditRoom";
 import NavBar from "./components/layout/NavBar";
-import Footer from "./components/layout/Footer";
+// import Footer from "./components/layout/Footer";
 import RoomListing from "./components/room/RoomListing";
 import Admin from "./components/admin/Admin";
 import Checkout from "./components/booking/Checkout";
@@ -34,6 +34,11 @@ import UserList from "./components/user/UserList";
 import StatisticRoom from "./components/statistics/StatisticRoom";
 import BookingDetail from "./components/booking/BookingDetail";
 import SearchBooking from "./components/booking/SearchBooking";
+import AssignTaskPage from "./components/staff/AssignTask";
+import RoomTasksPage from "./components/staff/RoomTask";
+import StaffTasksPage from "./components/staff/StaffTask";
+import StatisticRate from "./components/statistics/StatisticRate";
+import StatisticStaffAttendance from "./components/statistics/StatisticStaff";
 
 function App() {
   return (
@@ -75,6 +80,12 @@ function App() {
             <Route path="/statistics-room" element={<StatisticRoom />} />
             <Route path="/booking-detail" element={<BookingDetail />} />
             <Route path="/search-booking" element={<SearchBooking />} />
+            <Route path="/assign-task" element={<AssignTaskPage />} />
+            <Route path="/room-task" element={<RoomTasksPage />} />
+            <Route path="/staff-task" element={<StaffTasksPage />} />
+            <Route path="/statistics-rate" element={<StatisticRate />} />
+            <Route path="/staff-statistics" element={<StatisticStaffAttendance />} />
+            <Route path="*" element={<h1>404 Not Found</h1>} />
           </Routes>
           {/* <Footer /> */}
         </Router>

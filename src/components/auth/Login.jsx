@@ -21,6 +21,7 @@ const Login = () => {
             localStorage.setItem("email", e?.email ?? '')
             localStorage.setItem("Id", success?.id ?? '')
             navigate(redirectUrl, { replace: true })
+            window.location.reload()
         } else {
             setErrorMessage("Invalid username or password. Please try again.")
         }
