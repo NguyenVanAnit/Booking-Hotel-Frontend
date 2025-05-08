@@ -32,7 +32,7 @@ const getSearchAvailableRoom = async (params) => {
   try {
     const response = await api.get(
       `/rooms/available-rooms?checkInDate=${params.checkInDate}&checkOutDate=${params.checkOutDate}&numberAdult=${params.numberAdult}&numberChildren=${params.numberChildren}
-      &serviceIds=${params.serviceIds}&minPrice=${params.minPrice}&maxPrice=${params.maxPrice}&hasHighFloor=${params.hasHighFloor}&hasHighRating=${params.hasHighRating}&hasTwoOrMoreBeds=${params.hasTwoOrMoreBeds}`
+      &serviceIds=${params.serviceIds}&minPrice=${params.minPrice}&maxPrice=${params.maxPrice}&hasHighFloor=${params.hasHighFloor}&hasHighRating=${params.hasHighRating}&hasTwoOrMoreBeds=${params.hasTwoOrMoreBeds}&pageNumber=${params.pageNumber}&pageSize=${params.pageSize}`
     );
     return response?.data;
   } catch (error) {
@@ -42,8 +42,22 @@ const getSearchAvailableRoom = async (params) => {
 };
 
 const getAvailebleDay = async (params) => {
-  const res = api.get(`/rooms/available-day-in-month?roomId=${params.roomId}&year=${params.year}&month=${params.month}`);
+  const res = api.get(
+    `/rooms/available-day-in-month?roomId=${params.roomId}&year=${params.year}&month=${params.month}`
+  );
   return res;
+};
+
+const getAllRoomsByCheckout = async (checkout) => {
+  try {
+    const response = await api.get(
+      `/history-booking/by-checkout?date=${checkout}`
+    );
+    return response?.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error searching available room");
+  }
 }
 
 export {
@@ -53,4 +67,5 @@ export {
   putUpdateRoom,
   getSearchAvailableRoom,
   getAvailebleDay,
+  getAllRoomsByCheckout
 };

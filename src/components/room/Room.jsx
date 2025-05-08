@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { getAllRooms, getRoomTypes } from "../utils/ApiFunctions";
+import { useEffect, useState } from "react";
 import RoomCard from "./RoomCard";
-import { Col, Container, Row } from "react-bootstrap";
-import { Checkbox, Pagination, Select, Slider } from "antd";
+import {  Container, Row } from "react-bootstrap";
+import { Checkbox, Pagination, Slider } from "antd";
 import { useLocation } from "react-router-dom";
 import { formatVND } from "../helpers/helpers";
 import { getAllServices } from "../utils/services";
-import { use } from "react";
 import { getSearchAvailableRoom } from "../utils/room";
-import dispatchToast from "../helpers/toast";
 import RoomSearch from "../common/RoomSearch";
 // import RoomFilter from "../common/RoomFilter"
 // import RoomPaginator from "../common/RoomPaginator"
@@ -19,7 +16,7 @@ const Room = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [roomsPerPage, setRoomsPerPage] = useState(10);
-  const [filteredData, setFilteredData] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [allServices, setAllServices] = useState([]);
   const [amount, setAmount] = useState({
     smallLimit: 0,
@@ -55,12 +52,15 @@ const Room = () => {
       hasHighRating: popularFilters.highRating,
       hasTwoOrMoreBeds: popularFilters.twoBeds,
       serviceIds: selectedServiceIds.join(","),
+      pageNumber: currentPage,
+      pageSize: roomsPerPage,
     };
     console.log("request", request);
     const res = await getSearchAvailableRoom(request);
     console.log("res", res);
     if (res?.success) {
       setData(res?.data?.data);
+      setTotalRecords(res?.data?.totalRecords);
       // dispatchToast("success", "Cập nhật danh sách phòng thành công!");
     } else {
       // dispatchToast("error", "Không tìm thấy phòng nào phù hợp!");
@@ -72,7 +72,7 @@ const Room = () => {
 
   useEffect(() => {
     fetchData();
-  }, [state, amount, popularFilters, selectedServiceIds]);
+  }, [state, amount, popularFilters, selectedServiceIds, currentPage]);
 
   useEffect(() => {
     fetchServices();
@@ -109,11 +109,7 @@ const Room = () => {
   // const totalPages = Math.ceil(filteredData.length / roomsPerPage)
 
   const renderRooms = () => {
-    const startIndex = (currentPage - 1) * roomsPerPage;
-    const endIndex = startIndex + roomsPerPage;
-    return data
-      .slice(startIndex, endIndex)
-      .map((room) => <RoomCard room={room} key={room.id} />);
+    return data.map((room) => <RoomCard room={room} key={room.id} />);
   };
 
   const marks = {
@@ -199,14 +195,14 @@ const Room = () => {
     <Container>
       <h1 className="text-center">Danh sách phòng</h1>
       <RoomSearch state={state} />
-      
+
       <Row
         style={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
           padding: 10,
-          marginTop: 20
+          marginTop: 20,
         }}
       >
         <div
@@ -265,11 +261,6 @@ const Room = () => {
                   smallLimit: value[0],
                   largeLimit: value[1],
                 });
-                const filteredData2 = data.filter(
-                  (room) =>
-                    room.roomPrice >= value[0] && room.roomPrice <= value[1]
-                );
-                setFilteredData(filteredData2);
                 setCurrentPage(1);
               }}
               style={{
@@ -355,7 +346,7 @@ const Room = () => {
               align="center"
               current={currentPage}
               pageSize={roomsPerPage} // Kích thước trang hiện tại
-              total={filteredData.length} // Tổng số phòng
+              total={totalRecords} // Tổng số phòng
               onChange={handlePageChange} // Thay đổi trang
               onShowSizeChange={handlePageSizeChange} // Thay đổi kích thước trang
               showSizeChanger // Hiển thị bộ chọn kích thước trang
@@ -370,7 +361,7 @@ const Room = () => {
         align="center"
         current={currentPage}
         pageSize={roomsPerPage} // Kích thước trang hiện tại
-        total={filteredData.length} // Tổng số phòng
+        total={totalRecords} // Tổng số phòng
         onChange={handlePageChange} // Thay đổi trang
         onShowSizeChange={handlePageSizeChange} // Thay đổi kích thước trang
         showSizeChanger // Hiển thị bộ chọn kích thước trang

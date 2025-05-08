@@ -55,7 +55,7 @@ const RoomCard = ({ room }) => {
               fontWeight: 700,
               color: "#006ce4",
               cursor: "pointer",
-              width: "70%",
+              width: "65%",
               textAlign: "start",
             }}
           >
@@ -71,7 +71,7 @@ const RoomCard = ({ room }) => {
               gap: 5,
             }}
           >
-            <div>Tuyệt vời</div>
+            <div>{room?.totalRating > 4.1 ? 'Tuyệt vời' : 'Rất Tốt'}</div>
             <div
               style={{
                 backgroundColor: "#003b95",

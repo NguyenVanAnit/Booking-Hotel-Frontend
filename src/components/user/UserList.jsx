@@ -84,10 +84,12 @@ const UserList = () => {
         switch (Number(record)) {
           case 1:
             return <Alert message="Khách hàng" type="success" />;
-          case 2:
+          case 4:
             return <Alert message="Nhân viên lễ tân" type="warning" />;
           case 3:
             return <Alert message="Quản lý" type="error" />;
+          case 5:
+            return <Alert message="Bộ phận nhân sự" type="error" />;
           default:
             return "Người dùng";
         }

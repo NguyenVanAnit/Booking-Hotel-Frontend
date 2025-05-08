@@ -42,17 +42,7 @@ const StatisticRate = () => {
     setIsLoading(true);
     try {
       const response = await getAllRooms();
-  
-      // Fake điểm đánh giá cho mỗi phòng
-      const updatedRooms = response.map((room) => ({
-        ...room,
-        averageScore: +(Math.random() * (5 - 4.3) + 4.3).toFixed(1), 
-      }));
-  
-      // Sort giảm dần theo điểm
-      updatedRooms.sort((a, b) => b.averageScore - a.averageScore);
-  
-      setRooms(updatedRooms);
+      setRooms(response);
     } catch (error) {
       console.log(error);
     } finally {
@@ -90,8 +80,8 @@ const StatisticRate = () => {
     },
     {
         title: "Điểm đánh giá",
-        dataIndex: "averageScore",
-        key: "averageScore",
+        dataIndex: "totalRating",
+        key: "totalRating",
         width: 150,
         align: "center",
         render: (score) => score?.toFixed(1).replace(".", ","),
@@ -138,7 +128,7 @@ const StatisticRate = () => {
             ]}
             series={[
               {
-                data: rooms.map((stat) => stat.averageScore), // số lượt đặt
+                data: rooms.map((stat) => stat.totalRating), // số lượt đặt
                 label: "Số điểm trung bình theo đánh giá khách hàng",
               },
             ]}

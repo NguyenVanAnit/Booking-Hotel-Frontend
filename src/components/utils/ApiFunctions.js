@@ -119,7 +119,6 @@ export async function getAvailableRooms(checkInDate, checkOutDate, roomType) {
   return result;
 }
 
-/* This function register a new user */
 export async function registerUser(registration) {
   try {
     const response = await api.post("/auth/register-user", registration);

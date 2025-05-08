@@ -9,6 +9,7 @@ const taskTypeLabel = {
   0: "Dọn dẹp",
   1: "Bảo trì",
   2: "Kiểm định",
+  3: "Dọn dẹp sau khi trả phòng"
 };
 
 export default function StaffTasksPage() {

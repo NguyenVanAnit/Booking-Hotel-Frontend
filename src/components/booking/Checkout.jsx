@@ -39,7 +39,7 @@ const Checkout = () => {
     // serviceQuantities: {},
   });
   const currentEmail = localStorage.getItem("email") || "";
-  const currentId = localStorage.getItem("userId") || "";
+  // const currentId = localStorage.getItem("userId") || "";
   const [disabledSubmit, setDisabledSubmit] = useState(false);
   const [numberOfNights, setNumberOfNights] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);

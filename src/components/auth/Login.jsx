@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { loginUser } from "../utils/ApiFunctions"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "./AuthProvider"
 import { Form, Input, Button } from "antd"
 
@@ -48,7 +48,7 @@ const Login = () => {
                 </Form.Item>
             </Form>
             <p>
-                Bạn chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+                Bạn chưa có tài khoản? <Button type="link" onClick={() => navigate("/register")}>Đăng ký ngay</Button>
             </p>
         </section>
     )
