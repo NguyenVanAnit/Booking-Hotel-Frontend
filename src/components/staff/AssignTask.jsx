@@ -6,6 +6,7 @@ import { getStaffList } from "../utils/staff";
 import { getAllRoomsByCheckout } from "../utils/room";
 import moment from "moment";
 import emailjs from "emailjs-com";
+import RoomSelectorModal from "../common/RoomSelectorModal";
 
 const { Option } = Select;
 
@@ -24,6 +25,8 @@ export default function AssignTaskPage() {
   const [workType, setWorkType] = useState(0); // 0: Daily, 1: Checkout
   const [roomsCheckout, setRoomsCheckout] = useState([]);
   const [staffList, setStaffList] = useState([]);
+
+  const [showRoomModal, setShowRoomModal] = useState(false);
 
   useEffect(() => {
     fetchRooms();
@@ -240,7 +243,7 @@ export default function AssignTaskPage() {
               }}
             >
               <label className="font-semibold mr-4">🏨 Chọn Phòng:</label>
-              <Select
+              {/* <Select
                 mode="multiple"
                 showSearch
                 allowClear
@@ -255,6 +258,28 @@ export default function AssignTaskPage() {
                 filterOption={(input, option) =>
                   option.label.toLowerCase().includes(input.toLowerCase())
                 }
+              /> */}
+              <Button
+                type="default"
+                onClick={() => setShowRoomModal(true)}
+                style={{ marginLeft: 8 }}
+              >
+                🏨 Chọn phòng ({selectedRooms.length})
+              </Button>
+              <RoomSelectorModal
+                visible={showRoomModal}
+                onClose={() => setShowRoomModal(false)}
+                rooms={
+                  workType === 0
+                    ? rooms
+                    : roomsCheckout.map((r) => ({
+                        id: r.roomId,
+                        name: r.roomName,
+                        floor: r.floor,
+                      }))
+                }
+                selected={selectedRooms}
+                onSelect={setSelectedRooms}
               />
             </div>
 
