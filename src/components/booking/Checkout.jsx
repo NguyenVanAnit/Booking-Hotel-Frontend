@@ -26,22 +26,26 @@ const Checkout = () => {
   const roleLetan = localStorage.getItem("userRole");
   const location = useLocation();
   const room = location?.state?.record;
+  // console.log("roommmmmm", room);
   const [services, setServices] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([]);
+  // const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedServicesWithQuantity, setSelectedServicesWithQuantity] =
+    useState({});
+
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
     email: "",
     phoneNumberOther: "",
-    numOfAdults: 1,
+    numOfAdults: 0,
     numOfChildren: 0,
     // serviceQuantities: {},
   });
   const currentEmail = localStorage.getItem("email") || "";
   // const currentId = localStorage.getItem("userId") || "";
   const [disabledSubmit, setDisabledSubmit] = useState(false);
-  const [numberOfNights, setNumberOfNights] = useState(0);
+  const [numberOfDays, setNumberOfDays] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
 
   const fetchData = async () => {
@@ -80,6 +84,12 @@ const Checkout = () => {
   };
 
   useEffect(() => {
+  form.validateFields().then((values) => {
+    calculateTotalPrice(values);
+  });
+}, [selectedServicesWithQuantity, formData]);
+
+  useEffect(() => {
     fetchData();
     fetchUserData();
   }, []);
@@ -89,26 +99,47 @@ const Checkout = () => {
       .filter((s) => s.free && s.active !== false)
       .map((s) => s.id);
 
-    setSelectedServices(freeServices);
+    console.log("freeServices", freeServices);
+
+    setSelectedServicesWithQuantity((prev) => {
+      const updated = { ...prev };
+      freeServices.forEach((id) => {
+        if (!(id in updated)) {
+          updated[id] = 1;
+        }
+      });
+      return updated;
+    });
+    // setSelectedServices(freeServices);
   }, [services]);
 
-  const handleServiceChange = (checkedValues) => {
-    setSelectedServices(checkedValues);
-    form
-      .validateFields()
-      .then((values) => {
-        calculateTotalPrice(values);
-      })
-      .catch(() => {});
-  };
+  // const handleServiceChange = (checkedValues) => {
+  //   // console.log("checkedValues", checkedValues);
+  //   setSelectedServices(checkedValues);
+  //   form
+  //     .validateFields()
+  //     .then((values) => {
+  //       // console.log("values after service change", values);
+  //       calculateTotalPrice(values);
+  //     })
+  //     .catch((e) => {
+  //       console.log("validation error service:", e);
+  //     });
+  // };
 
   const onSubmit = async (values) => {
     try {
       setDisabledSubmit(true);
-      const payload = selectedServices.map((serviceId) => ({
-        serviceId,
-        quantity: values.serviceQuantities?.[serviceId] || 1,
-      }));
+      // const payload = selectedServices.map((serviceId) => ({
+      //   serviceId,
+      //   quantity: values.serviceQuantities?.[serviceId] || 1,
+      // }));
+      const payload = Object.keys(selectedServicesWithQuantity).map(
+        (serviceId) => ({
+          serviceId,
+          quantity: selectedServicesWithQuantity[serviceId],
+        })
+      );
 
       const formRequest = {
         checkInDate: values.checkin_checkout[0].format("YYYY-MM-DD"),
@@ -133,7 +164,7 @@ const Checkout = () => {
         if (roleLetan == "ROLE_RECEPTIONIST") {
           dispatchToast("success", "Lễ tân đặt phòng thành công!");
         } else {
-        window.location.href = res?.data?.data; // ← Chuyển hướng
+          window.location.href = res?.data?.data;
         }
       } else {
         dispatchToast("error", res?.message || "Đặt phòng thất bại!");
@@ -147,26 +178,36 @@ const Checkout = () => {
     }
   };
 
-  console.log("formData", formData);
-
   const calculateTotalPrice = (values) => {
     let roomPrice = room?.roomPrice || 0;
-    let nights = numberOfNights || 0;
+    let nights = numberOfDays || 0;
 
     let roomTotal = roomPrice * nights;
 
-    let servicesTotal = 0;
-    if (values?.serviceQuantities) {
-      for (let serviceId of selectedServices) {
-        const quantity = values.serviceQuantities[serviceId] || 1;
-        const service = services.find((s) => s.id === serviceId);
-        if (service) {
-          servicesTotal += service.priceService * quantity;
-        }
-      }
-    }
+    console.log("values", values);
 
-    const total = roomTotal + servicesTotal;
+    const totalServicePrice = Object.entries(
+      selectedServicesWithQuantity
+    ).reduce((total, [id, quantity]) => {
+      const service = services.find((s) => s.id == id);
+      if (!service) return total;
+      return total + service.priceService * quantity;
+    }, 0);
+
+    console.log("Tổng tiền dịch vụ:", totalServicePrice);
+
+    // if (values?.serviceQuantities) {
+    //   // console.log("values.serviceQuantities", values.serviceQuantities, selectedServices);
+    //   for (let serviceId of selectedServices) {
+    //     const quantity = values.serviceQuantities[serviceId] || 1;
+    //     const service = services.find((s) => s.id === serviceId);
+    //     if (service) {
+    //       servicesTotal += service.priceService * quantity;
+    //     }
+    //   }
+    // }
+
+    const total = roomTotal + totalServicePrice;
     setTotalPrice(total);
   };
 
@@ -261,22 +302,24 @@ const Checkout = () => {
                   style={{ width: "100%" }}
                   placeholder={["Ngày nhận phòng", "Ngày trả phòng"]}
                   disabledDate={(current) => current && current < Date.now()}
-                  onChange={(dates, dateStrings) => {
+                  onChange={(dates) => {
                     if (dates && dates.length === 2) {
                       const checkInDate = dates[0];
                       const checkOutDate = dates[1];
                       const nights = checkOutDate.diff(checkInDate, "days");
-                      setNumberOfNights(nights);
-
+                      setNumberOfDays(nights + 1);
                       // Khi chọn ngày mới thì tính lại tổng tiền
                       form
                         .validateFields()
                         .then((values) => {
+                          console.log("values", values);
                           calculateTotalPrice(values);
                         })
-                        .catch(() => {});
+                        .catch((e) => {
+                          console.error("Validation error:", e);
+                        });
                     } else {
-                      setNumberOfNights(0);
+                      setNumberOfDays(0);
                       setTotalPrice(0);
                     }
                   }}
@@ -293,6 +336,22 @@ const Checkout = () => {
                         required: true,
                         message: "Vui lòng nhập số lượng người lớn!",
                       },
+                      {
+                        validator: (_, value) => {
+                          if (value < 1) {
+                            return Promise.reject(
+                              new Error("Số lượng người lớn phải >= 1")
+                            );
+                          } else if (value > room?.maxNumberAdult) {
+                            return Promise.reject(
+                              new Error(
+                                `${room?.name} không được vượt quá ${room?.maxNumberAdult} người lớn`
+                              )
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      },
                     ]}
                   >
                     <InputNumber
@@ -304,12 +363,6 @@ const Checkout = () => {
                           ...prev,
                           numOfAdults: value,
                         }));
-                        form
-                          .validateFields()
-                          .then((values) => {
-                            calculateTotalPrice(values);
-                          })
-                          .catch(() => {});
                       }}
                     />
                   </Form.Item>
@@ -322,6 +375,21 @@ const Checkout = () => {
                       {
                         required: true,
                         message: "Vui lòng nhập số lượng trẻ em!",
+                      },
+                      {
+                        validator: (_, value) => {
+                          if (
+                            value > room?.maxNumberChildren &&
+                            room?.maxNumberChildren !== undefined
+                          ) {
+                            return Promise.reject(
+                              new Error(
+                                `${room?.name} không được vượt quá ${room?.maxNumberChildren} trẻ em`
+                              )
+                            );
+                          }
+                          return Promise.resolve();
+                        },
                       },
                     ]}
                   >
@@ -355,7 +423,7 @@ const Checkout = () => {
               </div>
               <Collapse defaultActiveKey={["1"]}>
                 <Panel header="Chọn dịch vụ đi kèm" key="1">
-                  <Checkbox.Group
+                  {/* <Checkbox.Group
                     style={{ width: "100%" }}
                     onChange={handleServiceChange}
                     value={selectedServices}
@@ -392,6 +460,7 @@ const Checkout = () => {
                                       disabled={isDisabled}
                                       onChange={(e) => {
                                         const checked = e.target.checked;
+                                        console.log("checked", checked);
                                         if (checked) {
                                           setSelectedServices((prev) => [
                                             ...prev,
@@ -448,7 +517,7 @@ const Checkout = () => {
                                         min={1}
                                         max={service.maxQuantity}
                                         disabled={!isSelected}
-                                        onChange={() => form.validateFields()} // cập nhật lại hiển thị giá
+                                        onChange={() => form.validateFields()}
                                       />
                                     </Form.Item>
                                   </Col>
@@ -459,7 +528,105 @@ const Checkout = () => {
                         );
                       })}
                     </Row>
-                  </Checkbox.Group>
+                  </Checkbox.Group> */}
+                  {services.map((service) => {
+                    // const isSelected =
+                    //   selectedServicesWithQuantity.hasOwnProperty(service.id);
+                    const isSelected =
+                      service.id in selectedServicesWithQuantity;
+                    const isFree = service.free === true;
+                    const isDisabled = service.active === false;
+
+                    return (
+                      <Col span={24} key={service.id}>
+                        <Tooltip
+                          title={service.description}
+                          placement="left"
+                          color="blue"
+                          overlayInnerStyle={{ maxWidth: 200 }}
+                        >
+                          <Card>
+                            <Row align="middle" justify="space-between">
+                              <Col align="start" style={{ flex: 1 }}>
+                                <Checkbox
+                                  checked={isSelected}
+                                  disabled={isDisabled}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setSelectedServicesWithQuantity((prev) => {
+                                      const updated = { ...prev };
+                                      if (checked) {
+                                        updated[service.id] = 1; // default quantity
+                                      } else {
+                                        delete updated[service.id];
+                                      }
+                                      return updated;
+                                    });
+                                    
+                                  }}
+                                >
+                                  {service.name}
+                                </Checkbox>
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: "#888",
+                                    marginTop: 4,
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <b style={{ color: "#1890ff" }}>
+                                    {formatVND(service.priceService)} VND / số
+                                    lượng 1
+                                  </b>
+                                  {isFree && (
+                                    <span
+                                      style={{ marginLeft: 8, color: "green" }}
+                                    >
+                                      (Miễn phí)
+                                    </span>
+                                  )}
+                                </div>
+                              </Col>
+                              <Col>
+                                <Form.Item
+                                  name={["serviceQuantities", service.id]}
+                                  initialValue={1}
+                                  style={{ marginBottom: 0 }}
+                                  rules={[
+                                    {
+                                      required: isSelected,
+                                      message: "Nhập số lượng!",
+                                    },
+                                  ]}
+                                >
+                                  <InputNumber
+                                    min={1}
+                                    max={service.maxQuantity}
+                                    disabled={!isSelected}
+                                    value={
+                                      selectedServicesWithQuantity[
+                                        service.id
+                                      ] || 1
+                                    }
+                                    onChange={(value) => {
+                                      setSelectedServicesWithQuantity(
+                                        (prev) => ({
+                                          ...prev,
+                                          [service.id]: value,
+                                        })
+                                      );
+                                      
+                                    }}
+                                  />
+                                </Form.Item>
+                              </Col>
+                            </Row>
+                          </Card>
+                        </Tooltip>
+                      </Col>
+                    );
+                  })}
                 </Panel>
               </Collapse>
             </Col>
@@ -471,27 +638,41 @@ const Checkout = () => {
                   zIndex: 999,
                 }}
               >
-                <Card title="Tóm tắt đơn đặt phòng" bordered>
+                <Card
+                  title="Tóm tắt đơn đặt phòng"
+                  bordered
+                  style={{ padding: "0 50px" }}
+                >
                   <p>
-                    <b>Giá phòng:</b> {formatVND(room?.roomPrice || 0)} / ngày
-                  </p>
-                  <p>{/* <b>Số đêm:</b> {numberOfNights} đêm */}</p>
-                  <p>
-                    <b>Người lớn:</b> {formData.numOfAdults || 0}
+                    <b>Phòng:</b> {room?.name || "Không có thông tin phòng"}
                   </p>
                   <p>
-                    <b>Trẻ em:</b> {formData.numOfChildren || 0}
+                    <b>Giá phòng:</b> {formatVND(room?.roomPrice || 0)} VNĐ /
+                    ngày
                   </p>
+                  <p>
+                    <b>Số ngày:</b> {numberOfDays} ngày
+                  </p>
+                  <Row style={{ justifyContent: "center", gap: 20 }}>
+                    <p>
+                      <b>Người lớn:</b> {formData.numOfAdults || 0}
+                    </p>
+                    <p>
+                      <b>Trẻ em:</b> {formData.numOfChildren || 0}
+                    </p>
+                  </Row>
                   <p>
                     {/* <b>Dịch vụ thêm:</b> {formatVND(serviceTotal)} VND */}
                   </p>
                   <hr />
-                  <p>
-                    <b>Tổng thanh toán:</b>{" "}
-                    <span style={{ color: "red", fontSize: 18 }}>
-                      {formatVND(totalPrice)}
-                    </span>
-                  </p>
+                  {totalPrice != 0 && (
+                    <p>
+                      <b>Tổng thanh toán:</b>{" "}
+                      <span style={{ color: "red", fontSize: 18 }}>
+                        {formatVND(totalPrice)} VNĐ
+                      </span>
+                    </p>
+                  )}
                   <Form.Item>
                     <Button
                       type="primary"

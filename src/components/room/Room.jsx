@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import RoomCard from "./RoomCard";
 import {  Container, Row } from "react-bootstrap";
 import { Checkbox, Pagination, Slider } from "antd";
@@ -7,12 +7,12 @@ import { formatVND } from "../helpers/helpers";
 import { getAllServices } from "../utils/services";
 import { getSearchAvailableRoom } from "../utils/room";
 import RoomSearch from "../common/RoomSearch";
+import PropTypes from "prop-types";
 // import RoomFilter from "../common/RoomFilter"
 // import RoomPaginator from "../common/RoomPaginator"
 
 const Room = () => {
   const [data, setData] = useState([]);
-  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [roomsPerPage, setRoomsPerPage] = useState(10);
@@ -24,6 +24,7 @@ const Room = () => {
   });
   const location = useLocation();
   const state = location.state;
+  console.log("state", state);
   const [popularFilters, setPopularFilters] = useState({
     highRating: false,
     twoBeds: false,
@@ -31,6 +32,11 @@ const Room = () => {
     highFloor: false,
   });
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
+  const [numberOfRent, setNumberOfRent] = useState({
+    days: 0,
+    adults: 0,
+    children: 0,
+  });
 
   const handleCheckboxChange = (key) => {
     setPopularFilters((prev) => ({
@@ -55,18 +61,17 @@ const Room = () => {
       pageNumber: currentPage,
       pageSize: roomsPerPage,
     };
-    console.log("request", request);
     const res = await getSearchAvailableRoom(request);
-    console.log("res", res);
+    // console.log("res", res);
     if (res?.success) {
       setData(res?.data?.data);
       setTotalRecords(res?.data?.totalRecords);
+      caculateItem();
       // dispatchToast("success", "Cập nhật danh sách phòng thành công!");
     } else {
       // dispatchToast("error", "Không tìm thấy phòng nào phù hợp!");
       setData([]);
     }
-
     setIsLoading(false);
   };
 
@@ -81,7 +86,7 @@ const Room = () => {
   const fetchServices = async () => {
     try {
       const res = await getAllServices();
-      console.log("services", res);
+      // console.log("services", res);
       if (res?.data.success) {
         setAllServices(res?.data?.data.data);
       }
@@ -90,28 +95,48 @@ const Room = () => {
     }
   };
 
+  const caculateItem = useCallback(() => {
+    const { checkInDate, checkOutDate, quantities } = state || {};
+    if (checkInDate && checkOutDate && quantities.adults) {
+      const checkin = new Date(checkInDate);
+      const checkout = new Date(checkOutDate);
+      const timeDiff = checkout - checkin;
+      const days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      console.log('days', days);
+      if (quantities.children < 1) {
+        setNumberOfRent({
+          days : days + 1,
+          adults: quantities.adults,
+          children: 0,
+        });
+      } else {
+        setNumberOfRent({
+          days: days + 1,
+          adults: quantities.adults,
+          children: quantities.children,
+        });
+      }
+    }
+  }, [state]);
+
   // if (isLoading) {
   //   return <div>Loading rooms.....</div>;
   // }
-  if (error) {
-    return <div className=" text-danger">Error : {error}</div>;
-  }
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth"});
   };
 
   const handlePageSizeChange = (current, pageSize) => {
     setRoomsPerPage(pageSize);
     setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // const totalPages = Math.ceil(filteredData.length / roomsPerPage)
 
-  const renderRooms = () => {
-    return data.map((room) => <RoomCard room={room} key={room.id} />);
-  };
-
+  
   const marks = {
     0: "0 VNĐ",
     20000000: {
@@ -157,7 +182,6 @@ const Room = () => {
         );
       });
   };
-
   const ItemCheckbox = ({ type }) => {
     return (
       <div
@@ -189,6 +213,14 @@ const Room = () => {
         </div>
       </div>
     );
+  };
+
+  ItemCheckbox.propTypes = {
+    type: PropTypes.string.isRequired,
+  };
+
+  const renderRooms = () => {
+    return data.map((room) => <RoomCard room={room} key={room.id} numberOfRent={numberOfRent}/>);
   };
 
   return (

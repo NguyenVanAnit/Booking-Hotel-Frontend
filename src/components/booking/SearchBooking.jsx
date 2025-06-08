@@ -30,17 +30,17 @@ const SearchBooking = () => {
         >
             <h4>Quét mã hóa đơn</h4>
             <div style={{ border: "1px solid #ccc", padding: "20px", borderRadius: "5px", width: 1000, margin: "0 auto" }}>
-                {!scanned && ( // 👈 Nếu đã quét thì ẩn Scanner luôn
+                {/* {!scanned && ( // Nếu đã quét thì ẩn Scanner luôn */}
                     <BarcodeScanner
                         width={500}
                         height={500}
                         onUpdate={(err, result) => {
-                            if (result && !scanned) { // 👈 Check chưa quét thì mới xử lý
+                            if (result && !scanned) { // Check chưa quét thì mới xử lý
                                 handleDetected(result);
                             }
                         }}
                     />
-                )}
+                {/* )} */}
                 <h5>Mã đặt phòng: {data}</h5>
                 {scanned && (
                     <div style={{ textAlign: "center", marginTop: 20 }}>

@@ -6,7 +6,7 @@ import { Form, Button, DatePicker, Space, Popover } from "antd";
 const { RangePicker } = DatePicker;
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 const RoomSearch = ({ state }) => {
   const [form] = Form.useForm();
@@ -104,7 +104,22 @@ const RoomSearch = ({ state }) => {
               </Form.Item>
             </Col>
             <Col xs={12} md={3}>
-              <Form.Item name="numPeople" label="Số lượng người">
+              <Form.Item
+                name="numPeople"
+                label="Số lượng người"
+                rules={[
+                  {
+                    validator: () => {
+                      if (quantities.adults < 1) {
+                        return Promise.reject(
+                          "Số lượng người lớn không được ít hơn 1"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
                 <Popover content={content} trigger="click" placement="bottom">
                   <Button
                     style={{ width: "100%", justifyContent: "space-between" }}

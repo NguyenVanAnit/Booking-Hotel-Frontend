@@ -25,11 +25,11 @@ export const getRoomTypes = async () => {
   }
 };
 
-export const getAllRooms = async () => {
+export const getAllRooms = async (params) => {
   try {
-    const response = await api.get("/rooms/all-rooms");
+    const response = await api.get(`/rooms/all-rooms?pageSize=${params?.pageSize || 10}&pageNumber=${params?.pageNumber || 1}`);
     // console.log("all rooms", response);
-    return response.data.data.data;
+    return response.data.data;
   } catch (error) {
     console.log(error);
     throw new Error("Error fetching all rooms");

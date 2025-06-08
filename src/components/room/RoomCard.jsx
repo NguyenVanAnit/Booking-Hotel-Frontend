@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Image, Button } from "antd";
 import { formatVND } from "../helpers/helpers";
 import { ArrowRightOutlined, StarFilled } from "@ant-design/icons";
+import PropTypes from "prop-types";
 
-const RoomCard = ({ room }) => {
+const RoomCard = ({ room, numberOfRent }) => {
   const navigate = useNavigate();
+
+  console.log('alao', room, numberOfRent);
 
   return (
     <div
@@ -122,14 +124,14 @@ const RoomCard = ({ room }) => {
               flexDirection: "column",
             }}
           >
-            <div
+            {numberOfRent?.days > 0 && numberOfRent?.adults > 0 && <div
               style={{
                 fontSize: 12,
                 textAlign: "end",
               }}
             >
-              3 đêm, 2 người lớn, 1 trẻ em
-            </div>
+              {`${numberOfRent?.days} ngày - ${numberOfRent?.adults} người lớn, ${numberOfRent?.children} trẻ em`}
+            </div>}
             <div
               style={{
                 fontSize: 20,
@@ -137,7 +139,7 @@ const RoomCard = ({ room }) => {
                 textAlign: "end",
               }}
             >
-              {formatVND(room?.roomPrice)} VNĐ
+              {numberOfRent?.days < 1 ? formatVND(room?.roomPrice) : formatVND(room?.roomPrice * numberOfRent?.days)} VNĐ
             </div>
             <div
               style={{
@@ -157,6 +159,15 @@ const RoomCard = ({ room }) => {
       </div>
     </div>
   );
+};
+
+RoomCard.propTypes = {
+  room: PropTypes.object.isRequired,
+  numberOfRent: PropTypes.shape({
+    days: PropTypes.number.isRequired,
+    adults: PropTypes.number.isRequired,
+    children: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default RoomCard;

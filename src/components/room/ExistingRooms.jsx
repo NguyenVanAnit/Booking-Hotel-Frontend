@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAllRooms, deleteRoom, getRoomTypes } from "../utils/ApiFunctions";
-import { Button, Table, Popconfirm, Select } from "antd";
+import { getAllRooms, deleteRoom } from "../utils/ApiFunctions";
+import { Button, Table, Popconfirm } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -12,19 +12,21 @@ import { formatVND } from "../helpers/helpers";
 
 const ExistingRooms = () => {
   const [rooms, setRooms] = useState([]);
-  const [listRoomTypes, setListRoomTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [filteredRooms, setFilteredRooms] = useState([]);
-  const [selecterdRoomType, setSelecterdRoomType] = useState("");
   const navigate = useNavigate();
   const roleHR = localStorage.getItem("userRole");
+  const [totalRecords, setTotalRecords] = useState(10);
 
-  const fetchData = async () => {
+  const fetchData = async (pageNumber) => {
     setIsLoading(true);
     try {
-      const response = await getAllRooms();
-      setRooms(response);
+      const response = await getAllRooms({
+        pageSize: 10,
+        pageNumber: pageNumber,
+      });
+      setRooms(response?.data || []);
+      setTotalRecords(response?.totalRecords || 10);
     } catch (error) {
       console.log(error);
     } finally {
@@ -32,33 +34,14 @@ const ExistingRooms = () => {
     }
   };
 
-  const fetchRoomTypes = async () => {
-    const response = await getRoomTypes();
-    setListRoomTypes(response);
-  };
-
   useEffect(() => {
-    fetchData();
-    fetchRoomTypes();
+    fetchData(1);
   }, []);
-
-  useEffect(() => {
-    if (selecterdRoomType == undefined) {
-      setFilteredRooms(rooms);
-    } else {
-      const filteredRooms = rooms.filter((room) =>
-        room.roomType.includes(selecterdRoomType)
-      );
-      console.log(filteredRooms);
-      setFilteredRooms(filteredRooms);
-    }
-    setCurrentPage(1);
-  }, [selecterdRoomType, rooms]);
 
   const handleDeleteRoom = async (roomId) => {
     console.log("delete room", roomId);
     await deleteRoom(roomId);
-    fetchData();
+    fetchData(1);
   };
 
   const handleEditRoom = (id) => {
@@ -179,25 +162,6 @@ const ExistingRooms = () => {
     <div style={{ padding: "40px" }}>
       <h2 style={{ marginBottom: "30px" }}>Danh sách phòng</h2>
 
-      <div style={{ paddingBottom: "20px" }}>
-        <Select
-          // defaultValue="lucy"
-          style={{
-            width: "20%",
-          }}
-          allowClear
-          options={listRoomTypes.map((roomType) => ({
-            label: roomType,
-            value: roomType,
-          }))}
-          placeholder="Tìm kiếm loại phòng"
-          onChange={(value) => {
-            console.log(value);
-            setSelecterdRoomType(value);
-          }}
-        />
-      </div>
-
       {
         roleHR === "ROLE_ADMIN" &&
         <Button
@@ -215,21 +179,20 @@ const ExistingRooms = () => {
               (col) => col.key !== "services" && col.key !== "action"
             )
           : columns}
-        dataSource={filteredRooms}
+        dataSource={rooms}
         loading={isLoading}
         bordered
         size="small"
         rowKey={(record) => record.id}
-        // pagination={{
-        //   current: currentPage,
-        //   pageSize: roomsPerPage,
-        //   total: filteredRooms.length,
-        //   showTotal: (total) => `Total ${total} rooms`,
-        //   onChange: (page, pageSize) => {
-        //     setCurrentPage(page);
-        //     setRoomsPerPage(pageSize);
-        //   },
-        // }}
+        pagination={{
+          current: currentPage,
+          pageSize: 10,
+          total: totalRecords,
+          onChange: (page) => {
+            fetchData(page);
+            setCurrentPage(page);
+          },
+        }}
       />
     </div>
   );
