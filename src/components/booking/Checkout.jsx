@@ -84,10 +84,10 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-  form.validateFields().then((values) => {
-    calculateTotalPrice(values);
-  });
-}, [selectedServicesWithQuantity, formData]);
+    form.validateFields().then((values) => {
+      calculateTotalPrice(values);
+    });
+  }, [selectedServicesWithQuantity, formData]);
 
   useEffect(() => {
     fetchData();
@@ -195,17 +195,6 @@ const Checkout = () => {
     }, 0);
 
     console.log("Tổng tiền dịch vụ:", totalServicePrice);
-
-    // if (values?.serviceQuantities) {
-    //   // console.log("values.serviceQuantities", values.serviceQuantities, selectedServices);
-    //   for (let serviceId of selectedServices) {
-    //     const quantity = values.serviceQuantities[serviceId] || 1;
-    //     const service = services.find((s) => s.id === serviceId);
-    //     if (service) {
-    //       servicesTotal += service.priceService * quantity;
-    //     }
-    //   }
-    // }
 
     const total = roomTotal + totalServicePrice;
     setTotalPrice(total);
@@ -562,7 +551,6 @@ const Checkout = () => {
                                       }
                                       return updated;
                                     });
-                                    
                                   }}
                                 >
                                   {service.name}
@@ -616,7 +604,6 @@ const Checkout = () => {
                                           [service.id]: value,
                                         })
                                       );
-                                      
                                     }}
                                   />
                                 </Form.Item>
