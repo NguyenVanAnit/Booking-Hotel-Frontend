@@ -21,7 +21,7 @@ import {
   getWorkAndAbsenDayInMonth,
   postChageStatusStaff,
 } from "../utils/staff";
-import StaffManage from "./staffManage";
+import StaffManage from "./StaffManage";
 
 const StaffList = () => {
   const [data, setData] = useState([]);
