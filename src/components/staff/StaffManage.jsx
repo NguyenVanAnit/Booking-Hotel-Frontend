@@ -1,11 +1,7 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { Col, Row } from "antd";
-import { render } from "react-dom";
-import StaffList from "./StaffList";
-import AddStaff from "./AddStaff";
-import TimeKeeping from "./TimeKeeping";
+import PropTypes from "prop-types";
 
 const StaffManage = ({ status, children }) => {
   const navigate = useNavigate();
@@ -104,6 +100,10 @@ const StaffManage = ({ status, children }) => {
       </section>
     </div>
   );
+};
+StaffManage.propTypes = {
+  status: PropTypes.number.isRequired,
+  children: PropTypes.node
 };
 
 export default StaffManage;
