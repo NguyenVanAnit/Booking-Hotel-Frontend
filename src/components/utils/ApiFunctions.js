@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:9192",
+  baseURL: "https://booking-hotel-backend-1.onrender.com",
+  // baseURL: "http://localhost:9192",
   headers: {
     "Content-Type": "application/json",
   },
