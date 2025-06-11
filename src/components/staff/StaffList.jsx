@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Table,
   Button,
-  Alert,
   Popconfirm,
   Modal,
   Descriptions,
@@ -10,29 +9,19 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
-  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import { formatDate, formatVND } from "../helpers/helpers";
-import {
-  getAllServices,
-  deleteService,
-  putUpdateService,
-} from "../utils/services";
 import dispatchToast from "../helpers/toast";
-import React from "react";
 import {
   deleteStaff,
   getStaffList,
   getWorkAndAbsenDayInMonth,
   postChageStatusStaff,
 } from "../utils/staff";
-import { set } from "date-fns";
 import StaffManage from "./StaffManage";
-import { width } from "@mui/system";
-import { render } from "react-dom";
 
 const StaffList = () => {
   const [data, setData] = useState([]);
@@ -49,6 +38,7 @@ const StaffList = () => {
         setData(response?.data?.data);
       }
     } catch (error) {
+      console.log(error);
       dispatchToast("error", "Lỗi khi tải danh sách nhân viên");
     } finally {
       setLoading(false);
@@ -70,6 +60,7 @@ const StaffList = () => {
         dispatchToast("error", "Xóa nhân viên thất bại");
       }
     } catch (error) {
+      console.error(error);
       dispatchToast("error", "Lỗi khi xóa nhân viên");
     } finally {
       setLoading(false);
@@ -90,6 +81,7 @@ const StaffList = () => {
         dispatchToast("error", "Thay đổi trạng thái nhân viên thất bại");
       }
     } catch (error) {
+      console.error(error);
       dispatchToast("error", "Lỗi khi thay đổi trạng thái nhân viên");
     } finally {
       setLoading(false);
@@ -106,6 +98,7 @@ const StaffList = () => {
         dispatchToast("error", "Lỗi khi tải thông tin nhân viên");
       }
     } catch (error) {
+      console.error(error);
       dispatchToast("error", "Lỗi khi tải thông tin nhân viên");
     }
 
@@ -308,7 +301,7 @@ const StaffList = () => {
                     key: "date",
                     width: 150,
                     align: "center",
-                    render: (record) => {
+                    render: () => {
                       return "Cả ngày";
                     }
                   },
