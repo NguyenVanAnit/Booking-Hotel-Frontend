@@ -47,15 +47,16 @@ const Registration = () => {
     setModalVisible(true);
   };
 
-  const handleOtpConfirm = async () => {
-    if (otpInput === generatedOtp) {
+  const handleOtpConfirm = async (enteredOtp) => {
+    // console.log("dad", enteredOtp, generatedOtp);
+    if (enteredOtp == generatedOtp) {
       try {
-        // await registerUser({
-        //   fullName: userData.fullName,
-        //   phoneNumber: userData.phoneNumber,
-        //   email: userData.newEmail,
-        //   password: userData.matkhau,
-        // });
+        await registerUser({
+          fullName: userData.fullName,
+          phoneNumber: userData.phoneNumber,
+          email: userData.newEmail,
+          password: userData.matkhau,
+        });
         message.success("Đăng ký thành công!");
         setModalVisible(false);
         setOtpInput("otpHetHan");
