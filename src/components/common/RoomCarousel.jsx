@@ -49,15 +49,15 @@ const RoomCarousel = () => {
                                                 src={room?.photo1 || ''}
                                                 alt="Room Photo"
                                                 className="w-100"
-                                                style={{ height: "200px" }}
+                                                style={{ height: "200px", objectFit: "cover" }}
                                                 preview={false}
-                                                onClick={() => navigate('/book-room', { state: room })}
+                                                onClick={() => navigate("/detail-room", { state: room?.id })}
                                             />
                                             <Card.Body>
-                                                <Card.Title className="hotel-color">{room.roomType}</Card.Title>
+                                                <Card.Title className="hotel-color">{room.name}</Card.Title>
                                                 <Card.Title className="room-price">{formatVND(room.roomPrice)} VND/đêm</Card.Title>
                                                 <div className="flex-shrink-0">
-                                                    <Button type="primary" onClick={() => navigate('/book-room', { state: room })}>Đặt ngay</Button>
+                                                    <Button type="primary" onClick={() => navigate("/detail-room", { state: room?.id })}>Đặt ngay</Button>
                                                 </div>
                                             </Card.Body>
                                         </Card>

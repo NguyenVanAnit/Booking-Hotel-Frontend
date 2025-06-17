@@ -3,16 +3,30 @@ import { useState, useEffect } from "react";
 
 export default function RoomSelectorModal({ visible, onClose, rooms, selected, onSelect }) {
   const [tempSelected, setTempSelected] = useState([]);
+  const [grouped, setGrouped] = useState({});
+
+  // console.log('RoomSelectorModal', rooms);
 
   useEffect(() => {
     setTempSelected(selected);
   }, [selected, visible]);
 
-  const grouped = rooms.reduce((acc, room) => {
-    if (!acc[room.floor]) acc[room.floor] = [];
-    acc[room.floor].push(room);
-    return acc;
-  }, {});
+  // const grouped = rooms?.reduce((acc, room) => {
+  //   if (!acc[room.floor]) acc[room.floor] = [];
+  //   acc[room.floor].push(room);
+  //   return acc;
+  // }, {});
+  useEffect(() => {
+    const groupedRooms = Array.isArray(rooms)
+    ? rooms.reduce((acc, room) => {
+        if (!acc[room.floor]) acc[room.floor] = [];
+        acc[room.floor].push(room);
+        return acc;
+      }, {})
+    : {};
+    setGrouped(groupedRooms || {});
+  }
+  , [rooms]);
 
   const handleRoomChange = (roomId, checked) => {
     setTempSelected((prev) =>

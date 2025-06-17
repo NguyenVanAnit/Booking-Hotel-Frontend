@@ -28,6 +28,8 @@ export default function AssignTaskPage() {
 
   const [showRoomModal, setShowRoomModal] = useState(false);
 
+  // console.log('r oomsCheckout', rooms);
+
   useEffect(() => {
     fetchRooms();
     fetchAllStaffs();
@@ -36,7 +38,8 @@ export default function AssignTaskPage() {
 
   const fetchRooms = async () => {
     const res = await getAllRooms();
-    setRooms(res || []);
+    // console.log('res', res);
+    setRooms(res?.data || []);
   };
 
   const fetchRoomsCheckout = async () => {
