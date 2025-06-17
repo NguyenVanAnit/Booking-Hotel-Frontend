@@ -100,7 +100,7 @@ const Logout = () => {
               }),
             ]}
           >
-            <Input.Password  placeholder="Xác nhận mật khẩu mới" />
+            <Input.Password placeholder="Xác nhận mật khẩu mới" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="ant-btn ant-btn-primary">
@@ -109,6 +109,8 @@ const Logout = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+
     </>
   );
 };

@@ -39,6 +39,7 @@ import RoomTasksPage from "./components/staff/RoomTask";
 import StaffTasksPage from "./components/staff/StaffTask";
 import StatisticRate from "./components/statistics/StatisticRate";
 import StatisticStaffAttendance from "./components/statistics/StatisticStaff";
+import CreateAccount from "./components/auth/CreateAccount";
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
             <Route path="/statistics-rate" element={<StatisticRate />} />
             <Route path="/staff-statistics" element={<StatisticStaffAttendance />} />
             <Route path="*" element={<h1>404 Not Found</h1>} />
+            <Route path="/create-account" element={<CreateAccount />} />
           </Routes>
           {/* <Footer /> */}
         </Router>

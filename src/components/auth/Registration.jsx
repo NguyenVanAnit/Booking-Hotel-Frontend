@@ -97,12 +97,12 @@ const Registration = () => {
           name="phoneNumber"
           rules={[{ required: true, message: "Vui lòng nhập số điện thoại!" }]}
         >
-          <Input />
+          <Input type="number" />
         </Form.Item>
         <Form.Item
           label="Email"
           name="newEmail"
-          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập email!" }, { type: 'email', message: 'Vui lòng nhập đúng định dạng email!' }]}
         >
           <Input />
         </Form.Item>

@@ -3,13 +3,11 @@ import { Table, Button, Alert, Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   PlusCircleOutlined,
-  EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { formatVND } from "../helpers/helpers";
-import { getAllServices, deleteService } from "../utils/services";
 import dispatchToast from "../helpers/toast";
 import { getAllUsers } from "../utils/user";
+import { deleteUser } from "../utils/ApiFunctions";
 
 const UserList = () => {
   const [data, setData] = useState([]);
@@ -34,13 +32,13 @@ const UserList = () => {
     fetchData();
   }, []);
 
-  const onDeleteService = async (id) => {
-    const response = await deleteService(id);
-    if (response?.data.success) {
-      dispatchToast("success", "Xóa dịch vụ thành công");
+  const onDeleteUser = async (id) => {
+    const res = await deleteUser(id);
+    if (res?.success) {
+      dispatchToast("success", "Xóa người dùng thành công");
       fetchData();
     } else {
-      dispatchToast("error", "Xóa dịch vụ thất bại");
+      dispatchToast("error", "Xóa người dùng thất bại vì người dùng này có đặt phòng");
     }
   };
 
@@ -102,18 +100,18 @@ const UserList = () => {
       align: "center",
       render: (record) => (
         <div>
-          <Button
+          {/* <Button
             type="dashed"
             // onClick={() => {
             //   navigate(`/add-service`, { state: { record: record } });
             // }}
           >
             <EditOutlined />
-          </Button>
+          </Button> */}
           <Popconfirm
             title="Xác nhận xóa người dùng"
             description="Có chắc chắn xóa người dùng này?"
-            // onConfirm={() => onDeleteService(record.id)}
+            onConfirm={() => onDeleteUser(record.id)}
             okText="Xóa"
             cancelText="Hủy"
           >
@@ -136,7 +134,7 @@ const UserList = () => {
           type="primary"
           icon={<PlusCircleOutlined />}
           onClick={() => {
-            navigate("/add-service");
+            navigate("/create-account");
           }}
         >
           Thêm người dùng
